@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" role="img" aria-label="Bajaj Finserv">
+  <circle cx="40" cy="40" r="40" fill="#fff"/>
+  <circle cx="40" cy="40" r="22" fill="#0072BC"/>
+  <text x="40" y="46" text-anchor="middle" font-family="Manrope, Arial, sans-serif" font-size="18" font-weight="800" fill="#fff">B</text>
+</svg>

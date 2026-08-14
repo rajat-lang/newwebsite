@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" role="img" aria-label="Home Credit">
+  <circle cx="40" cy="40" r="40" fill="#fff"/>
+  <circle cx="40" cy="40" r="22" fill="#E30613"/>
+  <path d="M40 24l16 14v18H50V44H30v12H24V38l16-14z" fill="#fff"/>
+</svg>

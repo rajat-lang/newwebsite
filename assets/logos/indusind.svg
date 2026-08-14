@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" role="img" aria-label="IndusInd Bank">
+  <circle cx="40" cy="40" r="40" fill="#fff"/>
+  <circle cx="40" cy="40" r="22" fill="#7A003C"/>
+  <path d="M28 50V30h6l8 12 8-12h6v20h-6V40l-8 12-8-12v10h-6z" fill="#fff"/>
+</svg>

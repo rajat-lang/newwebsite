@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" role="img" aria-label="Yes Bank">
+  <circle cx="40" cy="40" r="40" fill="#fff"/>
+  <circle cx="40" cy="40" r="22" fill="#00205B"/>
+  <text x="40" y="46" text-anchor="middle" font-family="Manrope, Arial, sans-serif" font-size="16" font-weight="800" fill="#5BC2E7">YES</text>
+</svg>
