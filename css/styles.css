@@ -6402,3 +6402,34 @@ html.story-dark .noise {
     height: auto;
   }
 }
+
+/* Hide Ringg's default launcher; Start AI Call clicks it programmatically */
+[data-ringg="trigger-button"] {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  position: fixed !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+}
+
+/* Fullscreen call screen while the widget is open */
+body.ringg-is-open [data-ringg="widget-root"] {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100dvh !important;
+  max-width: none !important;
+  max-height: none !important;
+  border-radius: 0 !important;
+  z-index: 10000 !important;
+}
+
+body.ringg-is-open [data-ringg="widget-body"],
+body.ringg-is-open [data-ringg="widget-panel"] {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  border-radius: 0 !important;
+}

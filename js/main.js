@@ -357,7 +357,162 @@ function endAllSessions() {
   endSessionsIn(document);
 }
 
+/* ---------- Ringg AI call widget ---------- */
+const RINGG_CDN_VERSION = "1.0.21-alpha.1";
+const RINGG_TRIGGER_SELECTOR = '[aria-label="Open call widget"]';
+
+const RINGG_AGENT_CONFIG = {
+  xApiKey: "17071333-fe9e-4dce-9816-18e2ce395842",
+  agentId: "680607d4-2e65-4e02-897e-5ead61d1c52b",
+  title: "Talk to your credit agent",
+  description:
+    "Connect live for overdue negotiation, settlement desks, and instant score guidance.",
+  logoUrl: new URL("assets/goodscore-icon.png", window.location.href).href,
+  media_type: "audio",
+  hideTabSelector: true,
+  bypassStartScreen: true,
+  variables: {
+    callee_name: "User",
+    encrypted_userid:
+      "DPstEmxKj2upW4Er8Fd5y9__5D3unSv3XDQZ6YEnsXb9GlXzbFxR4XK99wqrY23M_HWdOLWYfi-HiZo",
+  },
+  widgetPosition: {
+    hideTriggerOnExpand: true,
+    widgetAlignment: "bottom-right",
+  },
+  innerWindowProps: {
+    width: window.innerWidth,
+    height: window.innerHeight,
+  },
+};
+
+function loadAgentsCdn(version, done) {
+  if (typeof window.loadAgent === "function") {
+    done();
+    return;
+  }
+
+  const stylesheet = document.createElement("link");
+  stylesheet.rel = "stylesheet";
+  stylesheet.type = "text/css";
+  stylesheet.href = `https://cdn.jsdelivr.net/npm/@desivocal/agents-cdn@${version}/dist/style.css`;
+
+  const script = document.createElement("script");
+  script.type = "text/javascript";
+  script.onload = done;
+  script.src = `https://cdn.jsdelivr.net/npm/@desivocal/agents-cdn@${version}/dist/dv-agent.umd.js`;
+
+  document.head.appendChild(stylesheet);
+  document.head.appendChild(script);
+}
+
+function waitForElement(selector, signal) {
+  return new Promise((resolve) => {
+    if (signal?.aborted) {
+      resolve(null);
+      return;
+    }
+
+    const existing = document.querySelector(selector);
+    if (existing) {
+      resolve(existing);
+      return;
+    }
+
+    const observer = new MutationObserver(() => {
+      const element = document.querySelector(selector);
+      if (element) {
+        observer.disconnect();
+        resolve(element);
+      }
+    });
+
+    signal?.addEventListener("abort", () => {
+      observer.disconnect();
+      resolve(null);
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+  });
+}
+
+let ringgMounted = false;
+let ringgOpenController = null;
+
+function clickRinggTrigger(element) {
+  if (!element) return;
+  if (element.getAttribute("aria-label") !== "Open call widget") return;
+  element.click();
+}
+
+function mountRinggAgent() {
+  RINGG_AGENT_CONFIG.innerWindowProps = {
+    width: window.innerWidth,
+    height: window.innerHeight,
+  };
+  window.loadAgent?.(RINGG_AGENT_CONFIG);
+  ringgMounted = true;
+
+  ringgOpenController?.abort();
+  ringgOpenController = new AbortController();
+  waitForElement(RINGG_TRIGGER_SELECTOR, ringgOpenController.signal).then(
+    clickRinggTrigger
+  );
+}
+
+function destroyRinggAgent() {
+  ringgOpenController?.abort();
+  ringgOpenController = null;
+  ringgMounted = false;
+  document.body.classList.remove("ringg-is-open");
+
+  document.querySelector("#ringg_ai_container")?.remove();
+  document.querySelectorAll("[data-ringg]").forEach((el) => {
+    if (!el.isConnected) return;
+    if (el.parentElement?.closest("[data-ringg], #ringg_ai_container")) return;
+    el.remove();
+  });
+}
+
+function openRinggWidget() {
+  const trigger = document.querySelector(RINGG_TRIGGER_SELECTOR);
+  if (trigger) {
+    clickRinggTrigger(trigger);
+    return;
+  }
+
+  if (ringgMounted) {
+    ringgOpenController?.abort();
+    ringgOpenController = new AbortController();
+    waitForElement(RINGG_TRIGGER_SELECTOR, ringgOpenController.signal).then(
+      clickRinggTrigger
+    );
+    return;
+  }
+
+  loadAgentsCdn(RINGG_CDN_VERSION, mountRinggAgent);
+}
+
+window.addEventListener("ringg:widget_status", (event) => {
+  document.body.classList.toggle(
+    "ringg-is-open",
+    event.detail.status === "maximised"
+  );
+});
+
+window.addEventListener("ringg:conversation_status", (event) => {
+  if (event.detail.status === "ended") destroyRinggAgent();
+});
+
 function startSession(mode, root) {
+  if (mode === "call") {
+    openRinggWidget();
+    return;
+  }
+
   const scope = root || document;
   const panelList = panelsIn(scope);
   const panel = panelList.find((p) => p.dataset.connect === mode);
@@ -368,7 +523,6 @@ function startSession(mode, root) {
   const session = panel.querySelector("[data-session]");
   if (session) session.hidden = false;
 
-  if (mode === "call") startCallSession(panel);
   if (mode === "chat") startChatSession(panel);
   if (mode === "video") startVideoSession(panel);
 }
