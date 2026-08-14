@@ -374,7 +374,7 @@ const RINGG_AGENT_CONFIG = {
   variables: {
     callee_name: "User",
     encrypted_userid:
-      "DPstEmxKj2upW4Er8Fd5y9__5D3unSv3XDQZ6YEnsXb9GlXzbFxR4XK99wqrY23M_HWdOLWYfi-HiZo",
+      "vqPphCdV4BVw_gtd60jfKX3gwgq-4OqnBsGksGnhxSVu2GpDPpwpq9DoR9PrQjiJRGByLQMYNFU4ces",
   },
   widgetPosition: {
     hideTriggerOnExpand: true,
