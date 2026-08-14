@@ -424,6 +424,1345 @@ document.querySelectorAll("[data-chat-form]").forEach((form) => {
   });
 });
 
+/* ---------- Story agent intro (scroll dark merge) ---------- */
+const agentScene = document.querySelector("[data-agent-scene]");
+const agentSticky = agentScene?.querySelector(".story-agent-sticky");
+const agentVeil = document.querySelector("[data-agent-veil]");
+const agentNode = document.querySelector("[data-gs-agent]");
+const agentLine = document.querySelector("[data-agent-line]");
+const agentCopy = document.querySelector("[data-agent-copy]");
+const agentScanCopy = document.querySelector("[data-agent-scan-copy]");
+const agentSideCopy = document.querySelector("[data-agent-side-copy]");
+const agentProgressEl = document.querySelector("[data-agent-progress]");
+const agentExplode = document.querySelector("[data-agent-explode]");
+const agentExplodeCopy = document.querySelector("[data-agent-explode-copy]");
+const agentResolveCopy = document.querySelector("[data-agent-resolve-copy]");
+const agentScoreCopy = document.querySelector("[data-agent-score-copy]");
+const agentPayCopy = document.querySelector("[data-agent-pay-copy]");
+const agentRewardsCopy = document.querySelector("[data-agent-rewards-copy]");
+const agentScoreImprove = document.querySelector("[data-agent-score-improve]");
+const agentPay = document.querySelector("[data-agent-pay]");
+const agentPayRewardFx = document.querySelector("[data-pay-reward-fx]");
+const agentPayRewardFly = document.querySelector("[data-pay-reward-fly]");
+const agentPayPoints = [...document.querySelectorAll("[data-pay-points]")].sort(
+  (a, b) =>
+    Number(a.getAttribute("data-pay-points")) -
+    Number(b.getAttribute("data-pay-points"))
+);
+const agentPayPointsNums = agentPayPoints.map((el) =>
+  el.querySelector(".pay-points-num")
+);
+const agentPayCards = [0, 1, 2].map((i) =>
+  document.querySelector(`.story-agent-pay-card[data-pay-card="${i}"]`)
+);
+const agentPayCardHost = document.querySelector(".story-agent-pay-card-host");
+const agentPayMiddleCard = agentPayCardHost?.querySelector(
+  ".story-agent-pay-card"
+);
+const agentPayEmitter = document.querySelector("[data-pay-emitter]");
+const agentPhone = document.querySelector("[data-agent-phone]");
+const agentPhoneStage = document.querySelector("[data-agent-phone-stage]");
+const agentConfetti = document.querySelector("[data-agent-confetti]");
+const phoneScoreHud = document.querySelector("[data-phone-score]");
+const scoreNumEl = document.querySelector("[data-score-num]");
+const scoreLabelEl = document.querySelector("[data-score-label]");
+const explodeWraps = [
+  ...document.querySelectorAll("[data-explode-wrap]"),
+].sort(
+  (a, b) =>
+    Number(a.getAttribute("data-explode-wrap")) -
+    Number(b.getAttribute("data-explode-wrap"))
+);
+const featureStrip = document.querySelector("[data-feature-strip]");
+const featureTrack = document.querySelector("[data-feature-track]");
+const storyBody = document.querySelector("[data-story-body]");
+let agentAwake = false;
+let agentDarkLatched = false;
+let agentAllLatched = false;
+let agentHowtoLatched = false;
+let agentScanLatched = false;
+let agentShiftSmooth = 0;
+let phoneShowSmooth = 0;
+let scanLayoutSmooth = 0;
+let explodeSmooth = 0;
+let resolveSmooth = 0;
+let scoreImproveSmooth = 0;
+let payWithUsSmooth = 0;
+let payRewardsSmooth = 0;
+let agentScoreValue = 550;
+let lastScoreStep = -1;
+let scoreConfettiFired = false;
+let scoreConfettiRaf = 0;
+let scoreConfettiParts = [];
+let payRewardFxFired = false;
+let payCoinsPlaying = false;
+let payCoinsDone = false;
+let payCoinsReleased = false;
+let payCoinsHoldTimer = 0;
+let payShimmerTimer = 0;
+const PAY_SHIMMER_MS = 1050;
+const PAY_PILL_LEAD_MS = 320;
+const PAY_REWARD_COIN_SRCS = [
+  "assets/agent-screens/reward-coin-new-a.svg",
+  "assets/agent-screens/reward-coin-new-b.svg",
+  "assets/agent-screens/reward-coin-new-c.svg",
+  "assets/agent-screens/reward-coin-new-d.svg",
+  "assets/agent-screens/reward-coin-new-e.svg",
+];
+const PAY_REWARD_COIN_COUNT = 5;
+const PAY_POINTS_TOTALS = [250, 200, 100];
+const PAY_MIDDLE_CARD_SRC = "assets/agent-screens/pay-card-1.svg?v=2";
+const PAY_MIDDLE_CARD_SHIMMER_SRC =
+  "assets/agent-screens/pay-card-1-shimmer.svg?v=1";
+let payPointsValues = [0, 0, 0];
+let payPointsBumpTimers = [0, 0, 0];
+let payCoinEnterTimers = [];
+
+const SCORE_CONFETTI_COLORS = [
+  "#6ec4f8",
+  "#52b0f2",
+  "#4aacef",
+  "#f4c430",
+  "#ff8a4c",
+  "#ffffff",
+  "#c5e4fc",
+];
+
+function preferReducedMotion() {
+  return window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+}
+
+function stopScoreConfetti() {
+  if (scoreConfettiRaf) {
+    cancelAnimationFrame(scoreConfettiRaf);
+    scoreConfettiRaf = 0;
+  }
+  scoreConfettiParts = [];
+  if (agentConfetti) {
+    agentConfetti.classList.remove("is-on");
+    const ctx = agentConfetti.getContext?.("2d");
+    if (ctx) ctx.clearRect(0, 0, agentConfetti.width, agentConfetti.height);
+  }
+}
+
+function fireScoreConfetti() {
+  if (!agentConfetti || !agentPhoneStage || preferReducedMotion()) return;
+  stopScoreConfetti();
+
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const cssW = agentConfetti.clientWidth || 1;
+  const cssH = agentConfetti.clientHeight || 1;
+  agentConfetti.width = Math.round(cssW * dpr);
+  agentConfetti.height = Math.round(cssH * dpr);
+  const ctx = agentConfetti.getContext("2d");
+  if (!ctx) return;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const originX = cssW * 0.5;
+  /* Horizontally centered; vertically between phone center and top edge */
+  const originY = cssH * 0.41;
+  const count = 88;
+  /* Punchy launch + strong drag keeps the blast radius in check */
+  const timeScale = 1.05;
+  const maxRadius = Math.min(cssW, cssH) * 0.34;
+  scoreConfettiParts = Array.from({ length: count }, (_, i) => {
+    const angle = -Math.PI * 0.5 + (Math.random() - 0.5) * Math.PI * 1.2;
+    const speed = 11 + Math.random() * 10;
+    return {
+      x: originX + (Math.random() - 0.5) * 14,
+      y: originY + (Math.random() - 0.5) * 10,
+      vx: Math.cos(angle) * speed * (0.65 + Math.random() * 0.5),
+      vy: Math.sin(angle) * speed - 4.2,
+      w: 4 + Math.random() * 5,
+      h: 7 + Math.random() * 9,
+      rot: Math.random() * Math.PI * 2,
+      vr: (Math.random() - 0.5) * 0.45,
+      color: SCORE_CONFETTI_COLORS[i % SCORE_CONFETTI_COLORS.length],
+      life: 1,
+      decay: 0.012 + Math.random() * 0.014,
+      gravity: 0.08 + Math.random() * 0.04,
+      drag: 0.94,
+    };
+  });
+
+  agentConfetti.classList.add("is-on");
+  const start = performance.now();
+
+  function tick(now) {
+    const elapsed = now - start;
+    ctx.clearRect(0, 0, cssW, cssH);
+    let alive = 0;
+    for (const p of scoreConfettiParts) {
+      if (p.life <= 0) continue;
+      /* Fractional timeScale: one full step + a partial step */
+      const steps = Math.floor(timeScale);
+      const frac = timeScale - steps;
+      for (let s = 0; s < steps + (frac > 0 ? 1 : 0); s += 1) {
+        const k = s < steps ? 1 : frac;
+        p.vx *= Math.pow(p.drag, k);
+        p.vy = p.vy * Math.pow(p.drag, k) + p.gravity * k;
+        p.x += p.vx * k;
+        p.y += p.vy * k;
+        p.rot += p.vr * k;
+        p.life -= p.decay * k;
+        const dx = p.x - originX;
+        const dy = p.y - originY;
+        const dist = Math.hypot(dx, dy);
+        if (dist > maxRadius) {
+          /* Soft clamp — keep pieces inside the blast radius */
+          const scale = maxRadius / dist;
+          p.x = originX + dx * scale;
+          p.y = originY + dy * scale;
+          p.vx *= 0.35;
+          p.vy *= 0.35;
+          p.life *= 0.85;
+        }
+        if (p.life <= 0) break;
+      }
+      if (p.life <= 0) continue;
+      alive += 1;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.globalAlpha = Math.max(0, Math.min(1, p.life * 1.2));
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w * 0.5, -p.h * 0.5, p.w, p.h);
+      ctx.restore();
+    }
+    if (alive > 0 && elapsed < 2800) {
+      scoreConfettiRaf = requestAnimationFrame(tick);
+    } else {
+      stopScoreConfetti();
+    }
+  }
+
+  scoreConfettiRaf = requestAnimationFrame(tick);
+}
+
+function setPayPoints(cardIndex, n) {
+  payPointsValues[cardIndex] = n;
+  if (agentPayPointsNums[cardIndex]) {
+    agentPayPointsNums[cardIndex].textContent = `+${n}`;
+  }
+}
+
+function bumpPayPoints(cardIndex, step) {
+  const cap = PAY_POINTS_TOTALS[cardIndex] ?? 0;
+  const next = Math.min(cap, payPointsValues[cardIndex] + step);
+  setPayPoints(cardIndex, next);
+  const pointsEl = agentPayPoints[cardIndex];
+  if (!pointsEl) return;
+  pointsEl.classList.remove("is-bump");
+  void pointsEl.offsetWidth;
+  pointsEl.classList.add("is-bump");
+  if (payPointsBumpTimers[cardIndex]) {
+    clearTimeout(payPointsBumpTimers[cardIndex]);
+  }
+  payPointsBumpTimers[cardIndex] = window.setTimeout(() => {
+    pointsEl.classList.remove("is-bump");
+    payPointsBumpTimers[cardIndex] = 0;
+  }, 280);
+}
+
+function stopPayRewardFx() {
+  payRewardFxFired = false;
+  payCoinsPlaying = false;
+  payCoinsReleased = false;
+  if (payCoinsHoldTimer) {
+    clearTimeout(payCoinsHoldTimer);
+    payCoinsHoldTimer = 0;
+  }
+  if (payShimmerTimer) {
+    clearTimeout(payShimmerTimer);
+    payShimmerTimer = 0;
+  }
+  payPointsBumpTimers.forEach((id) => {
+    if (id) clearTimeout(id);
+  });
+  payPointsBumpTimers = [0, 0, 0];
+  payCoinEnterTimers.forEach((id) => clearTimeout(id));
+  payCoinEnterTimers = [];
+  if (agentPayRewardFly) agentPayRewardFly.innerHTML = "";
+  payPointsValues = [0, 0, 0];
+  agentPayPoints.forEach((el, i) => {
+    setPayPoints(i, 0);
+    el.classList.remove("is-bump");
+  });
+  agentPayCardHost?.classList.remove("is-shimmer", "is-emit");
+  if (agentPayMiddleCard) agentPayMiddleCard.src = PAY_MIDDLE_CARD_SRC;
+  agentPayRewardFx?.classList.remove("is-on");
+  agentPayRewardFx?.setAttribute("aria-hidden", "true");
+}
+
+function payCoinsHoldScrollY() {
+  if (!agentScene) return 0;
+  const total = Math.max(agentScene.offsetHeight - window.innerHeight, 1);
+  return agentPinScrollY() + total * AGENT_REWARDS_END;
+}
+
+function clampPayCoinsScroll() {
+  if (!payCoinsPlaying || payCoinsDone) return false;
+  const hold = payCoinsHoldScrollY();
+  if (window.scrollY > hold + 0.5) {
+    window.scrollTo(0, hold);
+    return true;
+  }
+  return false;
+}
+
+function revealPayRewardsStep() {
+  payCoinsReleased = true;
+  paintAgentIntro(agentProgress());
+}
+
+function spawnPayRewardCoins() {
+  if (!agentPayRewardFly) return;
+  agentPayCardHost?.classList.add("is-emit");
+  agentPayRewardFx.classList.add("is-on");
+  agentPayRewardFx.setAttribute("aria-hidden", "false");
+  payPointsValues = [0, 0, 0];
+  /* Copy swaps the instant the +N pills appear above the cards. */
+  revealPayRewardsStep();
+
+  const flyRect = agentPayRewardFly.getBoundingClientRect();
+  const phoneH = agentPay?.clientHeight || 520;
+  const risePx = Math.round(phoneH * -0.2);
+  const coinN = PAY_REWARD_COIN_COUNT;
+  let maxEnd = 0;
+  /* Exposed top corners of orange, blue and pink cards. */
+  const cardOrigins = [
+    { x: 51 / 383, y: 210 / 723 },
+    { x: 331 / 383, y: 285 / 723 },
+    { x: 331 / 383, y: 362 / 723 },
+  ];
+  const srcs = PAY_REWARD_COIN_SRCS.slice();
+  for (let s = srcs.length - 1; s > 0; s -= 1) {
+    const j = Math.floor(Math.random() * (s + 1));
+    const tmp = srcs[s];
+    srcs[s] = srcs[j];
+    srcs[j] = tmp;
+  }
+
+  agentPayCards.forEach((card, cardIndex) => {
+    if (!card || !flyRect.width || !flyRect.height) return;
+    const cardRect = card.getBoundingClientRect();
+    const origin = cardOrigins[cardIndex];
+    const sourceX = cardRect.left + cardRect.width * origin.x;
+    const sourceY = cardRect.top + cardRect.height * origin.y;
+    const ox = ((sourceX - flyRect.left) / flyRect.width) * 100;
+    const oy = ((sourceY - flyRect.top) / flyRect.height) * 100;
+    const pointsEl = agentPayPoints[cardIndex];
+    if (pointsEl) {
+      setPayPoints(cardIndex, 0);
+      pointsEl.style.left = `${ox.toFixed(2)}%`;
+      /* Counter sits immediately above the exposed card corner. */
+      pointsEl.style.top = `${Math.max(oy - 1.6, 4).toFixed(2)}%`;
+    }
+    const total = PAY_POINTS_TOTALS[cardIndex] ?? 0;
+    const step = Math.round(total / coinN);
+    const pillH = pointsEl?.offsetHeight || 18;
+    /* Coins launch from just above the pill, never overlapping it. */
+    const launchY = -(pillH + 14);
+
+    for (let i = 0; i < coinN; i += 1) {
+      const el = document.createElement("div");
+      el.className = "pay-fly-coin";
+      el.style.left = `${ox.toFixed(2)}%`;
+      el.style.top = `${oy.toFixed(2)}%`;
+      const img = document.createElement("img");
+      img.src = srcs[(i + cardIndex * 2) % srcs.length];
+      img.alt = "";
+      img.width = 64;
+      img.height = 64;
+      img.draggable = false;
+      const spinSec = 1.8 + Math.random() * 1.4;
+      const spinDir = Math.random() > 0.5 ? 1 : -1;
+      img.style.setProperty("--coin-spin", `${spinSec}s`);
+      img.style.setProperty("--coin-spin-dir", String(spinDir));
+      img.style.animationDelay = `-${(Math.random() * spinSec).toFixed(2)}s`;
+      el.appendChild(img);
+      agentPayRewardFly.appendChild(el);
+
+      const startX = (Math.random() - 0.5) * 5;
+      const startY = launchY + (Math.random() - 0.5) * 4;
+      const size = 0.88 + Math.random() * 0.25;
+      const delay =
+        PAY_PILL_LEAD_MS + cardIndex * 110 + i * 62 + Math.random() * 35;
+      const dur = 680 + Math.random() * 220;
+      maxEnd = Math.max(maxEnd, delay + dur);
+
+      const xf = (x, y, sc) =>
+        `translate3d(calc(-50% + ${x}px), ${y}px, 0) scale(${sc})`;
+
+      el.animate(
+        [
+          {
+            offset: 0,
+            opacity: 0,
+            transform: xf(startX, startY, size * 0.4),
+          },
+          {
+            offset: 0.14,
+            opacity: 1,
+            transform: xf(startX, startY + risePx * 0.22, size),
+          },
+          {
+            offset: 0.58,
+            opacity: 1,
+            transform: xf(startX, risePx * 0.68, size),
+          },
+          {
+            offset: 1,
+            opacity: 0,
+            transform: xf(startX, risePx, size * 0.76),
+          },
+        ],
+        {
+          duration: dur,
+          delay,
+          easing: "cubic-bezier(0.16, 0.72, 0.2, 1)",
+          fill: "forwards",
+        }
+      );
+
+      payCoinEnterTimers.push(
+        window.setTimeout(() => {
+          if (!payRewardFxFired) return;
+          const add =
+            i === coinN - 1
+              ? total - payPointsValues[cardIndex]
+              : step;
+          if (add > 0) bumpPayPoints(cardIndex, add);
+        }, delay + dur * 0.55)
+      );
+    }
+  });
+
+  payCoinsHoldTimer = window.setTimeout(() => {
+    payCoinsPlaying = false;
+    payCoinsDone = true;
+    payCoinsHoldTimer = 0;
+  }, Math.ceil(maxEnd + PAY_SHIMMER_MS * 0.1 + 220));
+}
+
+function firePayRewardFx() {
+  if (!agentPayRewardFx || !agentPayRewardFly) return;
+  if (preferReducedMotion()) {
+    payRewardFxFired = true;
+    payCoinsPlaying = false;
+    payCoinsDone = true;
+    payCoinsReleased = true;
+    agentPayCardHost?.classList.add("is-shimmer", "is-emit");
+    agentPayRewardFx.classList.add("is-on");
+    agentPayRewardFx.setAttribute("aria-hidden", "false");
+    agentPayPoints.forEach((_, i) =>
+      setPayPoints(i, PAY_POINTS_TOTALS[i] ?? 0)
+    );
+    revealPayRewardsStep();
+    return;
+  }
+
+  stopPayRewardFx();
+  payRewardFxFired = true;
+  payCoinsPlaying = true;
+  payCoinsDone = false;
+  payCoinsReleased = false;
+  agentPayCardHost?.classList.add("is-shimmer");
+  if (agentPayMiddleCard) {
+    agentPayMiddleCard.src = PAY_MIDDLE_CARD_SHIMMER_SRC;
+  }
+
+  payShimmerTimer = window.setTimeout(() => {
+    payShimmerTimer = 0;
+    if (!payRewardFxFired) return;
+    spawnPayRewardCoins();
+  }, PAY_SHIMMER_MS);
+}
+
+/*
+ * Two hard beats:
+ * 1) From first fold → always stop on agent-only (no cards)
+ * 2) Next scroll (after a brief settle) → unlock and free-scroll
+ */
+let agentSoloParked = false;
+let agentCardsUnlocked = false;
+let agentTouchStartY = 0;
+let agentCachedPinY = 0;
+let agentLocking = false;
+let agentParkedAt = 0;
+const AGENT_SOLO_SETTLE_MS = 320;
+/*
+ * Chapter progress map (fraction of scene height):
+ *  0 → 0.09     grow + copy + solo hold (grow finishes ~0.032)
+ *  0.09 → 0.125 agent + text only (brief wait before cards)
+ *  0.125 → 0.24 feature cards L→R
+ *  0.24 → 0.255 howto beat
+ *  0.255 → 0.32 agent→phone
+ *  0.32 → 0.40  scan hold
+ *  0.40 → 0.43  report explodes into screen2
+ *  0.43 → 0.44  hold exploded
+ *  0.44 → 0.72  resolve issues
+ *  0.72 → 0.80  cards implode back into phone
+ *  0.80 → 0.825 phone flips to score improves (fast)
+ *  0.825 → 0.89  score hold
+ *  0.89 → 0.925  pay-with-us screen + cards rise
+ *  0.925 → 0.935 pay hold
+ *  0.935 → 0.99  cards fan + coins (held until coins finish)
+ *  0.99 → 1.00   end → light section
+ */
+const AGENT_SOLO_MAX_P = 0.09;
+const AGENT_STRIP_START = 0.125;
+const AGENT_STRIP_END = 0.24;
+const AGENT_HOWTO_HOLD_END = 0.255;
+const AGENT_PHONE_END = 0.32;
+const AGENT_SCAN_HOLD_END = 0.4;
+const AGENT_EXPLODE_END = 0.43;
+const AGENT_RESOLVE_START = 0.44;
+const AGENT_RESOLVE_END = 0.72;
+const AGENT_IMPLODE_END = 0.8;
+const AGENT_SCORE_START = 0.8;
+const AGENT_SCORE_END = 0.825;
+const AGENT_PAY_START = 0.89;
+const AGENT_PAY_END = 0.925;
+const AGENT_REWARDS_START = 0.935;
+const AGENT_REWARDS_END = 0.99;
+
+/* Card order: left → top → enquiries → utilisation */
+const RESOLVE_ORDER = [0, 1, 3, 2];
+const SCORE_STEPS = [
+  { score: 550, label: "VERY BAD", color: "#e11d2e" },
+  { score: 640, label: "AVERAGE", color: "#e67e22" },
+  { score: 720, label: "GOOD", color: "#2ecc71" },
+  { score: 780, label: "GREAT", color: "#52b0f2" },
+  { score: 810, label: "GREAT", color: "#52b0f2" },
+];
+
+function applyScoreStep(stepIndex, animate) {
+  const step = SCORE_STEPS[Math.max(0, Math.min(SCORE_STEPS.length - 1, stepIndex))];
+  if (scoreLabelEl) {
+    scoreLabelEl.textContent = step.label;
+    scoreLabelEl.style.color = step.color;
+  }
+  agentSticky?.style.setProperty("--score-label-color", step.color);
+  if (!animate) {
+    agentScoreValue = step.score;
+    if (scoreNumEl) scoreNumEl.textContent = String(Math.round(agentScoreValue));
+    lastScoreStep = stepIndex;
+    return;
+  }
+  if (lastScoreStep === stepIndex) return;
+  lastScoreStep = stepIndex;
+  const from = agentScoreValue;
+  const to = step.score;
+  const start = performance.now();
+  const dur = 520;
+  function tick(now) {
+    const t = clamp01((now - start) / dur);
+    const eased = smoothstep(t);
+    agentScoreValue = from + (to - from) * eased;
+    if (scoreNumEl) scoreNumEl.textContent = String(Math.round(agentScoreValue));
+    if (t < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+function refreshAgentPinY() {
+  if (!agentScene) return 0;
+  agentCachedPinY =
+    agentScene.getBoundingClientRect().top + window.scrollY;
+  return agentCachedPinY;
+}
+
+function agentPinScrollY() {
+  return agentCachedPinY || refreshAgentPinY();
+}
+
+function agentSoloMaxScrollY() {
+  if (!agentScene) return agentPinScrollY();
+  const total = Math.max(agentScene.offsetHeight - window.innerHeight, 1);
+  return agentPinScrollY() + total * AGENT_SOLO_MAX_P;
+}
+
+/* Hard-land on the finished agent-only screen (never past into cards) */
+function lockToAgentSolo() {
+  if (!agentScene || agentLocking) return;
+  const soloMaxY = agentSoloMaxScrollY();
+  const y = window.scrollY;
+  const wasParked = agentSoloParked;
+  agentSoloParked = true;
+  agentCardsUnlocked = false;
+  if (!wasParked) agentParkedAt = performance.now();
+
+  if (Math.abs(y - soloMaxY) > 1.5) {
+    agentLocking = true;
+    window.scrollTo({ top: soloMaxY, behavior: "auto" });
+    requestAnimationFrame(() => {
+      agentLocking = false;
+    });
+  }
+}
+
+function unlockAgentCards() {
+  agentCardsUnlocked = true;
+  agentSoloParked = false;
+}
+
+function goToAgentSolo(smooth = true) {
+  if (!agentScene) return;
+  refreshAgentPinY();
+  agentCardsUnlocked = false;
+  agentSoloParked = true;
+  agentParkedAt = performance.now();
+  const soloMaxY = agentSoloMaxScrollY();
+  window.scrollTo({
+    top: soloMaxY,
+    behavior: smooth ? "smooth" : "auto",
+  });
+  const start = performance.now();
+  function settle() {
+    paintAgentIntro(agentProgress());
+    if (
+      Math.abs(window.scrollY - soloMaxY) > 3 &&
+      performance.now() - start < 1400
+    ) {
+      requestAnimationFrame(settle);
+      return;
+    }
+    window.scrollTo({ top: soloMaxY, behavior: "auto" });
+    paintAgentIntro(agentProgress());
+  }
+  requestAnimationFrame(settle);
+}
+
+document.querySelectorAll("[data-goto-agent-solo]").forEach((el) => {
+  el.addEventListener("click", (e) => {
+    e.preventDefault();
+    goToAgentSolo(true);
+    if (history.replaceState) {
+      history.replaceState(null, "", "#how-it-works");
+    }
+  });
+});
+
+if (location.hash === "#how-it-works") {
+  requestAnimationFrame(() => goToAgentSolo(false));
+}
+
+function agentSoloSettled() {
+  return (
+    agentSoloParked &&
+    !agentCardsUnlocked &&
+    performance.now() - agentParkedAt >= AGENT_SOLO_SETTLE_MS
+  );
+}
+
+function clamp01(n) {
+  return Math.min(1, Math.max(0, n));
+}
+
+function smoothstep(t) {
+  const x = clamp01(t);
+  return x * x * (3 - 2 * x);
+}
+
+/* Strip: emerge left-of-center → crawl right → merge right-of-center */
+function stripTravelEase(t) {
+  const x = clamp01(t);
+  if (x < 0.07) {
+    return (x / 0.07) * 0.07;
+  }
+  if (x < 0.88) {
+    return 0.07 + ((x - 0.07) / 0.81) * 0.81;
+  }
+  return 0.88 + ((x - 0.88) / 0.12) * 0.12;
+}
+
+function agentProgress() {
+  if (!agentScene) return 0;
+  const rect = agentScene.getBoundingClientRect();
+  const total = agentScene.offsetHeight - window.innerHeight;
+  if (total <= 0) return 0;
+  return clamp01(-rect.top / total);
+}
+
+function paintAgentIntro(p) {
+  if (!agentSticky || !agentScene) return;
+
+  const rect = agentScene.getBoundingClientRect();
+  const vh = window.innerHeight || 1;
+
+  /*
+   * White: agent rises bottom → centre (never past it).
+   * At centre (pin) → dark dissolves on; grow starts from that seat.
+   * End of chapter → unlatch immediately so lenders aren’t delayed.
+   */
+  const coinsBlocking = payCoinsPlaying && !payCoinsDone;
+  const stillCovering = rect.bottom > vh * 0.5;
+  const pinned = rect.top <= 1;
+  const chapterDone = !coinsBlocking && rect.bottom <= vh * 1.02;
+  if (coinsBlocking || (pinned && stillCovering && !chapterDone)) {
+    agentDarkLatched = true;
+  } else if (rect.top > 24 || rect.bottom < vh * 0.88 || chapterDone) {
+    agentDarkLatched = false;
+  }
+  const shouldDark = agentDarkLatched;
+  const exitPeek =
+    !shouldDark && rect.top <= 24 && rect.bottom > vh * 0.12;
+
+  const rise = shouldDark
+    ? 1
+    : exitPeek
+      ? 1
+      : rect.top < vh && rect.bottom > vh * 0.15
+        ? smoothstep(clamp01(1 - Math.max(rect.top, 0) / vh))
+        : 0;
+  const shouldPeek = !shouldDark && (exitPeek || rise > 0.02);
+
+  agentSticky.classList.toggle("is-dark", shouldDark);
+  agentSticky.classList.toggle("is-peeking", shouldPeek);
+  agentSticky.classList.remove("is-exiting");
+  agentVeil?.classList.toggle("is-on", shouldDark);
+  document.documentElement.classList.toggle("story-dark", shouldDark);
+  agentSticky.style.setProperty("--agent-rise", rise.toFixed(4));
+
+  /* At centre (rise=1) scale≈0.24; dark grow snaps up quickly from there */
+  let scale;
+  if (shouldDark) {
+    const grow = smoothstep(p / 0.032);
+    scale = 0.24 + grow * 0.76;
+  } else if (shouldPeek) {
+    scale = 0.14 + rise * 0.1;
+  } else {
+    scale = 0.14;
+  }
+  agentSticky.style.setProperty("--agent-scale", scale.toFixed(4));
+
+  const copy = shouldDark ? smoothstep((p - 0.018) / 0.028) : 0;
+  agentSticky.style.setProperty("--agent-copy", copy.toFixed(4));
+
+  /* Cards after the agent-only hold; then scrub L→R in the center band */
+  const stripSpan = Math.max(AGENT_STRIP_END - AGENT_STRIP_START, 0.001);
+  const stripT =
+    shouldDark && agentCardsUnlocked
+      ? clamp01((p - AGENT_STRIP_START) / stripSpan)
+      : 0;
+  /* Soft emerge / merge — not a hard cut at the screen edge */
+  const stripIn = smoothstep(stripT / 0.1);
+  const stripOut = 1 - smoothstep((stripT - 0.86) / 0.12);
+  const stripShow = stripIn * stripOut;
+  const stripPos = stripTravelEase(stripT);
+  /* Shorter travel + long scroll = much slower L→R drift */
+  const stripX = -16 + stripPos * 32;
+  agentSticky.style.setProperty("--strip-show", stripShow.toFixed(4));
+  agentSticky.style.setProperty("--strip-x", `${stripX.toFixed(2)}vw`);
+  featureStrip?.setAttribute("aria-hidden", stripShow < 0.08 ? "true" : "false");
+
+  /*
+   * “all of” when the strip’s midpoint crosses the screen/agent center.
+   * Once in, stay latched through card exit until chapter resets or
+   * the user scrolls the strip back past center.
+   */
+  if (!shouldDark || !agentCardsUnlocked) {
+    agentAllLatched = false;
+  } else if (featureTrack && stripShow > 0.15) {
+    const tr = featureTrack.getBoundingClientRect();
+    const stripMid = tr.left + tr.width / 2;
+    const viewMid = window.innerWidth / 2;
+    if (stripMid >= viewMid - 6) agentAllLatched = true;
+    else if (stripMid < viewMid - 48) agentAllLatched = false;
+  }
+  agentLine?.classList.toggle("is-all", agentAllLatched);
+
+  /* Cards gone → latch “How do we do this?” until scroll-back */
+  if (
+    shouldDark &&
+    agentCardsUnlocked &&
+    agentAllLatched &&
+    stripT >= 0.98
+  ) {
+    agentHowtoLatched = true;
+  } else if (!shouldDark || !agentCardsUnlocked || stripT < 0.86) {
+    agentHowtoLatched = false;
+  }
+  /* Once past phone/explode, keep howto latched so resolve can play */
+  if (shouldDark && p >= AGENT_PHONE_END && agentCardsUnlocked) {
+    agentHowtoLatched = true;
+  }
+  const isHowto = agentHowtoLatched;
+  agentCopy?.classList.toggle("is-howto", isHowto);
+
+  /*
+   * After howto delay: agent drifts right + phone dissolves in.
+   * Then scan hold → report explodes into screen2 → AI resolves issues.
+   */
+  let agentShiftTarget = 0;
+  let phoneShowTarget = 0;
+  let scanLayoutTarget = 0;
+  let explodeTarget = 0;
+  let resolveTarget = 0;
+  let scoreImproveTarget = 0;
+  if (shouldDark && isHowto && p > AGENT_HOWTO_HOLD_END) {
+    const moveSpan = Math.max(AGENT_PHONE_END - AGENT_HOWTO_HOLD_END, 0.001);
+    const moveT = clamp01((p - AGENT_HOWTO_HOLD_END) / moveSpan);
+    /* Soft ease-in-out so the center→scanner drift isn’t abrupt */
+    const ease = smoothstep(smoothstep(moveT));
+    agentShiftTarget = Math.min(1, ease);
+    /* Phone arrives after the agent has already begun drifting */
+    phoneShowTarget = smoothstep((ease - 0.22) / 0.62);
+    scanLayoutTarget = smoothstep((ease - 0.3) / 0.58);
+    if (p >= AGENT_PHONE_END) {
+      agentShiftTarget = 1;
+      phoneShowTarget = 1;
+      scanLayoutTarget = 1;
+    }
+  }
+  if (shouldDark && isHowto && p > AGENT_SCAN_HOLD_END) {
+    const explodeSpan = Math.max(AGENT_EXPLODE_END - AGENT_SCAN_HOLD_END, 0.001);
+    const explodeT = clamp01((p - AGENT_SCAN_HOLD_END) / explodeSpan);
+    explodeTarget = smoothstep(smoothstep(explodeT));
+    if (p >= AGENT_EXPLODE_END) explodeTarget = 1;
+    agentShiftTarget = 1;
+    phoneShowTarget = 1;
+    scanLayoutTarget = 1;
+  }
+  if (shouldDark && isHowto && p > AGENT_RESOLVE_START) {
+    const resolveSpan = Math.max(AGENT_RESOLVE_END - AGENT_RESOLVE_START, 0.001);
+    const resolveT = clamp01((p - AGENT_RESOLVE_START) / resolveSpan);
+    resolveTarget = smoothstep(resolveT);
+    if (p >= AGENT_RESOLVE_END) resolveTarget = 1;
+    explodeTarget = 1;
+    agentShiftTarget = 1;
+    phoneShowTarget = 1;
+    scanLayoutTarget = 1;
+  }
+  /* After resolve: cards implode back into the phone (reverse of explode) */
+  if (shouldDark && isHowto && p > AGENT_RESOLVE_END) {
+    resolveTarget = 1;
+    agentShiftTarget = 1;
+    phoneShowTarget = 1;
+    scanLayoutTarget = 1;
+    const implodeSpan = Math.max(AGENT_IMPLODE_END - AGENT_RESOLVE_END, 0.001);
+    const implodeT = clamp01((p - AGENT_RESOLVE_END) / implodeSpan);
+    explodeTarget = 1 - smoothstep(implodeT);
+    if (p >= AGENT_IMPLODE_END) explodeTarget = 0;
+  }
+  /* Flip immediately once cards are gone — short scroll span */
+  if (shouldDark && isHowto && p >= AGENT_SCORE_START) {
+    const scoreSpan = Math.max(AGENT_SCORE_END - AGENT_SCORE_START, 0.001);
+    const scoreT = clamp01((p - AGENT_SCORE_START) / scoreSpan);
+    scoreImproveTarget = scoreT;
+    if (p >= AGENT_SCORE_END) scoreImproveTarget = 1;
+    resolveTarget = 1;
+    agentShiftTarget = 1;
+    scanLayoutTarget = 1;
+    phoneShowTarget = 1;
+    explodeTarget = 0;
+  }
+  /* After score holds: swap phone face to pay-with-us */
+  let payWithUsTarget = 0;
+  if (shouldDark && isHowto && p >= AGENT_PAY_START) {
+    const paySpan = Math.max(AGENT_PAY_END - AGENT_PAY_START, 0.001);
+    const payT = clamp01((p - AGENT_PAY_START) / paySpan);
+    payWithUsTarget = payT;
+    if (p >= AGENT_PAY_END) payWithUsTarget = 1;
+    scoreImproveTarget = 1;
+    resolveTarget = 1;
+    agentShiftTarget = 1;
+    scanLayoutTarget = 1;
+    phoneShowTarget = 1;
+    explodeTarget = 0;
+  }
+  let payRewardsTarget = 0;
+  if (shouldDark && isHowto && p >= AGENT_REWARDS_START) {
+    const rewardsSpan = Math.max(AGENT_REWARDS_END - AGENT_REWARDS_START, 0.001);
+    const rewardsT = clamp01((p - AGENT_REWARDS_START) / rewardsSpan);
+    payRewardsTarget = smoothstep(rewardsT);
+    if (p >= AGENT_REWARDS_END) payRewardsTarget = 1;
+    payWithUsTarget = 1;
+    scoreImproveTarget = 1;
+    resolveTarget = 1;
+    agentShiftTarget = 1;
+    scanLayoutTarget = 1;
+    phoneShowTarget = 1;
+    explodeTarget = 0;
+  }
+
+  /* Smooth follow — lower rate = less whip on scroll ticks */
+  const follow = !shouldDark ? 1 : isHowto ? 0.15 : 0.18;
+  const imploding =
+    shouldDark && isHowto && p > AGENT_RESOLVE_END && p < AGENT_SCORE_END;
+  agentShiftSmooth += (agentShiftTarget - agentShiftSmooth) * follow;
+  phoneShowSmooth += (phoneShowTarget - phoneShowSmooth) * follow;
+  scanLayoutSmooth += (scanLayoutTarget - scanLayoutSmooth) * follow;
+  /* Snap cards shut quickly so flip isn’t waiting on lerp lag */
+  explodeSmooth +=
+    (explodeTarget - explodeSmooth) * (imploding ? 0.42 : isHowto ? 0.18 : 1);
+  resolveSmooth += (resolveTarget - resolveSmooth) * (isHowto ? 0.07 : 1);
+  /* Flip is 1:1 with scroll — no delay after collapse */
+  scoreImproveSmooth = scoreImproveTarget;
+  payWithUsSmooth = payWithUsTarget;
+  payRewardsSmooth = payRewardsTarget;
+  if (!shouldDark || Math.abs(agentShiftTarget - agentShiftSmooth) < 0.0008) {
+    agentShiftSmooth = agentShiftTarget;
+    phoneShowSmooth = phoneShowTarget;
+    scanLayoutSmooth = scanLayoutTarget;
+  }
+  if (!shouldDark || Math.abs(explodeTarget - explodeSmooth) < 0.0008) {
+    explodeSmooth = explodeTarget;
+  }
+  if (!shouldDark || Math.abs(resolveTarget - resolveSmooth) < 0.0008) {
+    resolveSmooth = resolveTarget;
+  }
+
+  const agentShift = agentShiftSmooth;
+  const phoneShow = phoneShowSmooth;
+  const scanLayout = scanLayoutSmooth;
+  const explode = explodeSmooth;
+  const resolve = resolveSmooth;
+  const scoreImprove = scoreImproveSmooth;
+  const payWithUs = payWithUsSmooth;
+  const payRewards = payRewardsSmooth;
+  /* Vertical settle lags horizontal move so it doesn’t drop onto the phone early */
+  const agentShiftY = smoothstep((agentShift - 0.18) / 0.82);
+  /* Size shrink starts mid-move, finishes as we seat */
+  const agentShrink = smoothstep((agentShift - 0.28) / 0.72);
+
+  agentSticky.style.setProperty("--agent-shift", agentShift.toFixed(4));
+  agentSticky.style.setProperty("--agent-shift-y", agentShiftY.toFixed(4));
+  agentSticky.style.setProperty("--agent-shrink", agentShrink.toFixed(4));
+  agentSticky.style.setProperty("--phone-show", phoneShow.toFixed(4));
+  agentSticky.style.setProperty("--scan-layout", scanLayout.toFixed(4));
+  agentSticky.style.setProperty("--explode", explode.toFixed(4));
+  agentSticky.style.setProperty("--resolve", resolve.toFixed(4));
+  agentSticky.style.setProperty("--score-improve", scoreImprove.toFixed(4));
+  /* 0→1 drives a full 180° Y flip of the phone stage */
+  agentSticky.style.setProperty("--score-flip", scoreImprove.toFixed(4));
+  agentSticky.style.setProperty("--pay-with-us", payWithUs.toFixed(4));
+  agentSticky.style.setProperty("--pay-rewards", payRewards.toFixed(4));
+  /* Cards rise from bottom with a short stagger after the phone dissolves in */
+  const cardRise = smoothstep(clamp01((payWithUs - 0.08) / 0.92));
+  const card0 = smoothstep(clamp01((cardRise - 0.0) / 0.78));
+  const card1 = smoothstep(clamp01((cardRise - 0.12) / 0.78));
+  const card2 = smoothstep(clamp01((cardRise - 0.24) / 0.78));
+  agentSticky.style.setProperty("--pay-card-0", card0.toFixed(4));
+  agentSticky.style.setProperty("--pay-card-1", card1.toFixed(4));
+  agentSticky.style.setProperty("--pay-card-2", card2.toFixed(4));
+  /* Copy swap is discrete + CSS timed (not scroll-scrubbed crossfade) */
+  const resolveCopy = smoothstep(clamp01(resolve / 0.12));
+  const scoreImproveCopy = smoothstep(clamp01(scoreImprove / 0.35));
+  agentSticky.style.setProperty("--resolve-copy", resolveCopy.toFixed(4));
+  agentSticky.style.setProperty(
+    "--score-improve-copy",
+    scoreImproveCopy.toFixed(4)
+  );
+
+  let sideCopyStep = "scan";
+  if (payCoinsReleased) sideCopyStep = "rewards";
+  else if (payWithUs >= 0.45) sideCopyStep = "pay";
+  else if (scoreImprove >= 0.45) sideCopyStep = "score";
+  else if (resolveCopy >= 0.45) sideCopyStep = "resolve";
+  else if (explode >= 0.45) sideCopyStep = "explode";
+  agentScanCopy?.classList.toggle("is-on", sideCopyStep === "scan");
+  agentExplodeCopy?.classList.toggle("is-on", sideCopyStep === "explode");
+  agentResolveCopy?.classList.toggle("is-on", sideCopyStep === "resolve");
+  agentScoreCopy?.classList.toggle("is-on", sideCopyStep === "score");
+  agentPayCopy?.classList.toggle("is-on", sideCopyStep === "pay");
+  agentRewardsCopy?.classList.toggle("is-on", sideCopyStep === "rewards");
+  /* No scroll-scrubbed grey exit — veil dissolves when dark unlatches */
+  document.documentElement.style.setProperty("--agent-exit", "0");
+  agentSticky.style.setProperty("--agent-exit", "0");
+  agentVeil?.classList.remove("is-exiting");
+
+  /* Stagger cards so they lift off the report in sequence */
+  for (let i = 0; i < 4; i += 1) {
+    const t = clamp01((explode - i * 0.07) / 0.78);
+    const staggered = smoothstep(smoothstep(t));
+    agentSticky.style.setProperty(`--explode-${i}`, staggered.toFixed(4));
+  }
+
+  /* Resolve: agent stays on the active card through the red→green flip */
+  let fixedCount = 0;
+  const holdResolved =
+    resolve >= 0.995 ||
+    scoreImprove > 0.02 ||
+    (shouldDark && isHowto && p >= AGENT_RESOLVE_END);
+  if (holdResolved) {
+    fixedCount = RESOLVE_ORDER.length;
+    const lastId = RESOLVE_ORDER[RESOLVE_ORDER.length - 1];
+    const showAgent = explode > 0.55 && scoreImprove < 0.2;
+    explodeWraps.forEach((wrap, i) => {
+      wrap.classList.add("is-fixed");
+      const stay = showAgent && i === lastId;
+      wrap.classList.toggle("is-working", stay);
+      wrap
+        .querySelector("[data-card-agent]")
+        ?.setAttribute("aria-hidden", stay ? "false" : "true");
+    });
+  } else if (resolve > 0.02 && explode > 0.85) {
+    const n = RESOLVE_ORDER.length;
+    const slot = resolve * n;
+    const activeSlot = Math.min(n - 1, Math.floor(slot));
+    const local = slot - activeSlot;
+    /* local: 0–0.62 working, 0.62+ tag fixed — agent keeps blinking either way */
+    for (let s = 0; s < n; s += 1) {
+      const cardId = RESOLVE_ORDER[s];
+      const wrap = explodeWraps[cardId];
+      if (!wrap) continue;
+      const agentEl = wrap.querySelector("[data-card-agent]");
+      if (s < activeSlot) {
+        wrap.classList.add("is-fixed");
+        wrap.classList.remove("is-working");
+        agentEl?.setAttribute("aria-hidden", "true");
+        fixedCount += 1;
+      } else if (s === activeSlot) {
+        wrap.classList.add("is-working");
+        agentEl?.setAttribute("aria-hidden", "false");
+        if (local >= 0.62) {
+          wrap.classList.add("is-fixed");
+          fixedCount += 1;
+        } else {
+          wrap.classList.remove("is-fixed");
+        }
+      } else {
+        wrap.classList.remove("is-working", "is-fixed");
+        agentEl?.setAttribute("aria-hidden", "true");
+      }
+    }
+  } else {
+    explodeWraps.forEach((wrap) => {
+      wrap.classList.remove("is-working", "is-fixed");
+      wrap.querySelector("[data-card-agent]")?.setAttribute("aria-hidden", "true");
+    });
+  }
+
+  const scoreStep = resolve < 0.02 ? 0 : Math.min(SCORE_STEPS.length - 1, fixedCount);
+  applyScoreStep(scoreStep, resolve > 0.02 && shouldDark && scoreImprove < 0.35);
+  const hudOn =
+    (explode > 0.35 || resolve > 0.02) && scoreImprove < 0.35;
+  phoneScoreHud?.classList.toggle("is-on", hudOn);
+  phoneScoreHud?.setAttribute("aria-hidden", hudOn ? "false" : "true");
+
+  /* Ray length + seat agent at scan start; travel only downward from there */
+  if (agentNode && agentPhone && phoneShow > 0.15 && explode < 0.85) {
+    const a = agentNode.getBoundingClientRect();
+    const ph = agentPhone.getBoundingClientRect();
+    const stickyBox = agentSticky.getBoundingClientRect();
+    if (ph.width > 8 && a.width > 1 && stickyBox.height > 8) {
+      const fromX = a.left + a.width * 0.5;
+      const overhang = Math.max(22, ph.width * 0.07);
+      const desiredViewport = Math.max(ph.width, ph.right + overhang - fromX);
+      const scaleX = a.width / Math.max(agentNode.offsetWidth, 1);
+      const scaleY = a.height / Math.max(agentNode.offsetHeight, 1);
+      const rayW = desiredViewport / Math.max(scaleX, 0.12);
+      agentSticky.style.setProperty("--scan-ray-width", `${rayW.toFixed(1)}px`);
+
+      /* Loan list band on screen1: seat at top of band, scan down into fade */
+      const scanTopY = ph.top + ph.height * 0.36;
+      const scanBotY = ph.top + ph.height * 0.74;
+      const seatPct =
+        ((scanTopY - stickyBox.top) / stickyBox.height) * 100;
+      agentSticky.style.setProperty(
+        "--agent-seat-top",
+        `${seatPct.toFixed(2)}%`
+      );
+      /* Animation origin is seated Y (0); only --scan-y-bot is travel distance */
+      const yBot = (scanBotY - scanTopY) / Math.max(scaleY, 0.12);
+      agentSticky.style.setProperty("--scan-y-top", "0px");
+      agentSticky.style.setProperty("--scan-y-bot", `${yBot.toFixed(1)}px`);
+    }
+  }
+
+  /* Start auto-scan only once seated; stop while exploding / resolving / score */
+  if (
+    shouldDark &&
+    agentShift >= 0.98 &&
+    phoneShow >= 0.98 &&
+    explode < 0.2 &&
+    resolve < 0.02 &&
+    scoreImprove < 0.02
+  ) {
+    agentScanLatched = true;
+  } else if (
+    !shouldDark ||
+    agentShift < 0.82 ||
+    phoneShow < 0.82 ||
+    explode >= 0.35 ||
+    resolve > 0.02 ||
+    scoreImprove > 0.02
+  ) {
+    agentScanLatched = false;
+  }
+  agentSticky.classList.toggle("is-scan-running", agentScanLatched);
+  agentSticky.classList.toggle("is-score", scoreImprove > 0.5);
+  agentPhoneStage?.setAttribute(
+    "aria-hidden",
+    phoneShow < 0.08 ? "true" : "false"
+  );
+  agentPhone?.setAttribute(
+    "aria-hidden",
+    phoneShow < 0.08 || scoreImprove > 0.5 ? "true" : "false"
+  );
+  agentSideCopy?.setAttribute(
+    "aria-hidden",
+    scanLayout < 0.12 ? "true" : "false"
+  );
+  agentScanCopy?.setAttribute(
+    "aria-hidden",
+    sideCopyStep === "scan" && scanLayout >= 0.12 ? "false" : "true"
+  );
+  agentExplode?.setAttribute("aria-hidden", explode < 0.08 ? "true" : "false");
+  agentExplodeCopy?.setAttribute(
+    "aria-hidden",
+    sideCopyStep === "explode" ? "false" : "true"
+  );
+  agentResolveCopy?.setAttribute(
+    "aria-hidden",
+    sideCopyStep === "resolve" ? "false" : "true"
+  );
+  agentScoreCopy?.setAttribute(
+    "aria-hidden",
+    sideCopyStep === "score" ? "false" : "true"
+  );
+  agentPayCopy?.setAttribute(
+    "aria-hidden",
+    sideCopyStep === "pay" ? "false" : "true"
+  );
+  agentRewardsCopy?.setAttribute(
+    "aria-hidden",
+    sideCopyStep === "rewards" ? "false" : "true"
+  );
+  agentScoreImprove?.setAttribute(
+    "aria-hidden",
+    scoreImprove < 0.5 ? "true" : "false"
+  );
+  const payOn = payWithUs >= 0.45;
+  const rewardsOn = payRewards >= 0.35;
+  agentScoreImprove?.classList.toggle("is-pay", payOn);
+  agentScoreImprove?.classList.toggle("is-rewards", rewardsOn);
+  agentPay?.classList.toggle("is-on", payOn);
+  agentPay?.classList.toggle("is-rewards", rewardsOn);
+  agentPay?.setAttribute("aria-hidden", payOn ? "false" : "true");
+  agentSticky.classList.toggle("is-rewards", rewardsOn);
+
+  /* Burst confetti from behind the card the instant the flip lands */
+  if (scoreImprove >= 0.98 && shouldDark && isHowto) {
+    if (!scoreConfettiFired) {
+      scoreConfettiFired = true;
+      fireScoreConfetti();
+    }
+  } else if (scoreImprove < 0.82 || !shouldDark) {
+    if (scoreConfettiFired) {
+      scoreConfettiFired = false;
+      stopScoreConfetti();
+    }
+  }
+
+  /* Coins once the fan is clearly on — hold scroll until they finish */
+  if (payRewards >= 0.55 && shouldDark && isHowto) {
+    if (!payRewardFxFired) firePayRewardFx();
+  } else if (
+    !payCoinsPlaying &&
+    (payRewards < 0.28 || (!shouldDark && p < AGENT_REWARDS_START))
+  ) {
+    if (payRewardFxFired || payCoinsDone) {
+      stopPayRewardFx();
+      payCoinsDone = false;
+    }
+  }
+  clampPayCoinsScroll();
+
+  /* Progress: explode → 1; resolve → 2; score → 3; pay → 4; rewards → 5 */
+  let progressStep = "0";
+  if (payCoinsReleased) progressStep = "5";
+  else if (payWithUs >= 0.45) progressStep = "4";
+  else if (scoreImproveCopy >= 0.45) progressStep = "3";
+  else if (resolveCopy >= 0.45) progressStep = "2";
+  else if (explode >= 0.45) progressStep = "1";
+  agentProgressEl?.setAttribute("data-step", progressStep);
+
+  const awake = shouldPeek || shouldDark;
+  if (awake !== agentAwake) {
+    agentNode?.classList.toggle("is-awake", awake);
+    agentAwake = awake;
+  }
+
+  /* Keep lerping while settling after scroll stops */
+  if (
+    shouldDark &&
+    (Math.abs(agentShiftTarget - agentShiftSmooth) > 0.002 ||
+      Math.abs(phoneShowTarget - phoneShowSmooth) > 0.002 ||
+      Math.abs(explodeTarget - explodeSmooth) > 0.002 ||
+      Math.abs(resolveTarget - resolveSmooth) > 0.002 ||
+      Math.abs(scoreImproveTarget - scoreImproveSmooth) > 0.002)
+  ) {
+    requestAnimationFrame(() => paintAgentIntro(agentProgress()));
+  }
+}
+
+function onAgentScroll() {
+  if (!agentScene || agentLocking) return;
+
+  const vh = window.innerHeight || 1;
+  const y = window.scrollY;
+  const pinY = agentPinScrollY();
+  const soloMaxY = agentSoloMaxScrollY();
+  const sceneRun = Math.max(agentScene.offsetHeight - vh, 1);
+
+  if (y < pinY - vh * 0.5) {
+    agentSoloParked = false;
+    agentCardsUnlocked = false;
+    agentAllLatched = false;
+    agentHowtoLatched = false;
+    agentScanLatched = false;
+    agentShiftSmooth = 0;
+    phoneShowSmooth = 0;
+    scanLayoutSmooth = 0;
+    explodeSmooth = 0;
+    resolveSmooth = 0;
+    scoreImproveSmooth = 0;
+    payWithUsSmooth = 0;
+    payRewardsSmooth = 0;
+    scoreConfettiFired = false;
+    stopScoreConfetti();
+    stopPayRewardFx();
+    payCoinsDone = false;
+    lastScoreStep = -1;
+    applyScoreStep(0, false);
+    agentParkedAt = 0;
+    refreshAgentPinY();
+  }
+
+  /*
+   * From first fold: never past the finished agent-only screen.
+   * A little further scroll after settle unlocks cards.
+   */
+  if (!agentCardsUnlocked && y > soloMaxY + 4 && y < pinY + sceneRun * 0.9) {
+    if (agentSoloSettled()) {
+      unlockAgentCards();
+    } else {
+      lockToAgentSolo();
+    }
+  } else if (y >= pinY - 4 && y <= soloMaxY + 4) {
+    if (!agentSoloParked && !agentCardsUnlocked) {
+      agentSoloParked = true;
+      agentParkedAt = performance.now();
+    }
+  }
+
+  paintAgentIntro(agentProgress());
+}
+
+function onAgentWheel(e) {
+  if (!agentScene) return;
+
+  const y = window.scrollY;
+  const pinY = agentPinScrollY();
+  const soloMaxY = agentSoloMaxScrollY();
+  const goingDown = e.deltaY > 0;
+
+  /* Keep chapter locked while reward coins are still falling */
+  if (payCoinsPlaying && !payCoinsDone && goingDown) {
+    const hold = payCoinsHoldScrollY();
+    if (y + e.deltaY > hold) {
+      e.preventDefault();
+      window.scrollTo(0, hold);
+      return;
+    }
+  }
+
+  if (!goingDown && y < pinY - 2) {
+    agentSoloParked = false;
+    agentCardsUnlocked = false;
+    agentParkedAt = 0;
+    refreshAgentPinY();
+    return;
+  }
+
+  if (!goingDown || agentCardsUnlocked) return;
+
+  /* Hard flick / scroll from above → clamp to finished agent screen */
+  if (y < pinY - 2) {
+    if (y + e.deltaY > soloMaxY) {
+      e.preventDefault();
+      lockToAgentSolo();
+      paintAgentIntro(agentProgress());
+    }
+    return;
+  }
+
+  /* In solo zone: grow freely; stop at soloMax until a little further scroll */
+  if (!agentSoloParked) {
+    agentSoloParked = true;
+    agentParkedAt = performance.now();
+  }
+
+  if (y + e.deltaY > soloMaxY + 1) {
+    if (agentSoloSettled()) {
+      unlockAgentCards();
+      return;
+    }
+    e.preventDefault();
+    lockToAgentSolo();
+    paintAgentIntro(agentProgress());
+  }
+}
+
+function onAgentTouchStart(e) {
+  if (!e.touches?.[0]) return;
+  agentTouchStartY = e.touches[0].clientY;
+}
+
+function onAgentTouchMove(e) {
+  if (!agentScene || !e.touches?.[0]) return;
+
+  const y = window.scrollY;
+  const pinY = agentPinScrollY();
+  const soloMaxY = agentSoloMaxScrollY();
+  const dy = agentTouchStartY - e.touches[0].clientY;
+
+  if (payCoinsPlaying && !payCoinsDone && dy > 8) {
+    const hold = payCoinsHoldScrollY();
+    if (y + dy > hold) {
+      e.preventDefault();
+      window.scrollTo(0, hold);
+      return;
+    }
+  }
+
+  if (agentCardsUnlocked) return;
+  if (dy <= 8) return;
+
+  if (y < pinY - 2) {
+    if (y + dy > soloMaxY) {
+      e.preventDefault();
+      lockToAgentSolo();
+      paintAgentIntro(agentProgress());
+    }
+    return;
+  }
+
+  if (!agentSoloParked) {
+    agentSoloParked = true;
+    agentParkedAt = performance.now();
+  }
+
+  if (y + dy > soloMaxY + 1) {
+    if (agentSoloSettled()) {
+      unlockAgentCards();
+      return;
+    }
+    e.preventDefault();
+    lockToAgentSolo();
+    paintAgentIntro(agentProgress());
+  }
+}
+
+window.addEventListener("wheel", onAgentWheel, { passive: false });
+window.addEventListener("touchstart", onAgentTouchStart, { passive: true });
+window.addEventListener("touchmove", onAgentTouchMove, { passive: false });
+window.addEventListener("resize", refreshAgentPinY, { passive: true });
+refreshAgentPinY();
+
 /* ---------- Story scroll storytelling ---------- */
 const SCENE_COUNT = scenes.length;
 const storyTimeline = document.querySelector(".story-timeline");
@@ -502,15 +1841,18 @@ function startIssueReveal() {
 }
 
 function storyProgress() {
-  if (!storySection) return 0;
-  const rect = storySection.getBoundingClientRect();
-  const total = storySection.offsetHeight - window.innerHeight;
+  const root = storyBody || storySection;
+  if (!root) return 0;
+  const rect = root.getBoundingClientRect();
+  const total = root.offsetHeight - window.innerHeight;
   if (total <= 0) return 0;
   const scrolled = -rect.top;
   return Math.min(1, Math.max(0, scrolled / total));
 }
 
 function onStoryScroll() {
+  onAgentScroll();
+  if (SCENE_COUNT <= 0) return;
   const progress = storyProgress();
   const index = Math.min(
     SCENE_COUNT - 1,
@@ -520,6 +1862,7 @@ function onStoryScroll() {
 }
 
 window.addEventListener("scroll", onStoryScroll, { passive: true });
+window.addEventListener("resize", onStoryScroll, { passive: true });
 onStoryScroll();
 
 /* ---------- Number animation ---------- */
@@ -542,10 +1885,69 @@ function animateNumber(el, target, duration = 800) {
 
 /* ---------- Pointer tilt on AI deck card (also inlined in index.html) ---------- */
 
-/* ---------- Reveal on enter for lenders / loans ---------- */
+/* ---------- Reveal on enter for lenders / loans / impact ---------- */
+const impactSection = document.querySelector("[data-impact]");
+const impactCountEls = [...document.querySelectorAll("[data-impact-count]")];
 const revealables = document.querySelectorAll(
-  ".loan-offer, .network-core, .section-head, .cta-panel, .impact-metric"
+  ".loan-wall, .network-core, .section-head, .cta-panel"
 );
+
+function formatImpactCount(value, { decimals, commas, prefix, suffix }) {
+  let num = decimals > 0 ? value.toFixed(decimals) : String(Math.round(value));
+  if (commas) {
+    num = num.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+  return `${prefix}${num}${suffix}`;
+}
+
+function animateImpactCounts() {
+  if (
+    !impactCountEls.length ||
+    window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches
+  ) {
+    return;
+  }
+
+  const duration = 900;
+  impactCountEls.forEach((el, i) => {
+    const to = Number(el.getAttribute("data-count-to") || 0);
+    const prefix = el.getAttribute("data-count-prefix") || "";
+    const suffix = el.getAttribute("data-count-suffix") || "";
+    const decimals = Number(el.getAttribute("data-count-decimals") || 0);
+    const commas = el.getAttribute("data-count-commas") === "true";
+    /* Start near the end so the tick feels light, not a full count-up */
+    const from = to * 0.82;
+    const delay = i * 70;
+    const startAt = performance.now() + delay;
+
+    function tick(now) {
+      if (now < startAt) {
+        requestAnimationFrame(tick);
+        return;
+      }
+      const t = Math.min(1, (now - startAt) / duration);
+      const eased = 1 - Math.pow(1 - t, 2.4);
+      const value = from + (to - from) * eased;
+      el.textContent = formatImpactCount(value, {
+        decimals,
+        commas,
+        prefix,
+        suffix,
+      });
+      if (t < 1) requestAnimationFrame(tick);
+      else {
+        el.textContent = formatImpactCount(to, {
+          decimals,
+          commas,
+          prefix,
+          suffix,
+        });
+      }
+    }
+
+    requestAnimationFrame(tick);
+  });
+}
 
 if ("IntersectionObserver" in window) {
   const io = new IntersectionObserver(
@@ -564,6 +1966,40 @@ if ("IntersectionObserver" in window) {
     el.classList.add("will-reveal");
     io.observe(el);
   });
+
+  if (impactSection) {
+    const impactIo = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-inview");
+            animateImpactCounts();
+            impactIo.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.28 }
+    );
+    impactIo.observe(impactSection);
+  }
+} else if (impactSection) {
+  impactSection.classList.add("is-inview");
+  animateImpactCounts();
 }
+
+/* ---------- FAQ accordion (one open at a time, height animated) ---------- */
+const faqItems = [...document.querySelectorAll(".faq-item")];
+faqItems.forEach((item) => {
+  const trigger = item.querySelector(".faq-trigger");
+  if (!trigger) return;
+  trigger.addEventListener("click", () => {
+    const willOpen = !item.classList.contains("is-open");
+    faqItems.forEach((other) => {
+      const open = other === item && willOpen;
+      other.classList.toggle("is-open", open);
+      other.querySelector(".faq-trigger")?.setAttribute("aria-expanded", String(open));
+    });
+  });
+});
 
 /* ---------- Lender network scroll rotation (handled inline in index.html) ---------- */

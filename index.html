@@ -14,7 +14,7 @@
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="css/styles.css?v=tags1" />
+    <link rel="stylesheet" href="css/styles.css?v=agent222" />
   </head>
   <body>
     <div class="noise" aria-hidden="true"></div>
@@ -23,13 +23,14 @@
 
     <header class="nav">
       <a class="nav-brand" href="#top" aria-label="GoodScore home">
-        <span class="nav-mark" aria-hidden="true"></span>
-        GoodScore
+        <img class="brand-logo" src="assets/logos/goodscore.svg" alt="GoodScore" width="131" height="23" />
       </a>
       <nav class="nav-links" aria-label="Primary">
-        <a href="#story">How it works</a>
-        <a href="#lenders">Network</a>
+        <a href="#how-it-works" data-goto-agent-solo>How it works</a>
         <a href="#loans">Loans</a>
+        <a href="#lenders">Network</a>
+        <a href="#why-goodscore">Why us</a>
+        <a href="#faq">FAQs</a>
       </nav>
     </header>
 
@@ -52,7 +53,9 @@
           </p>
           <div class="hero-cta">
             <a class="btn btn-primary" href="#cta">Check your potential</a>
-            <a class="btn btn-ghost" href="#story">See how it works</a>
+            <a class="btn btn-ghost" href="#how-it-works" data-goto-agent-solo
+              >See how it works</a
+            >
           </div>
 
           <ul class="hero-proof" aria-label="Trust signals">
@@ -132,20 +135,36 @@
                   </span>
                   <span class="deck-status-text">AI Credit Intelligence</span>
                 </div>
-                <div class="ai-modes" role="group" aria-label="AI contact modes">
-                  <button class="mode" type="button" data-mode="chat">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H9l-4 3v-3H6a2 2 0 01-2-2V5z"/></svg>
-                    AI Chat
-                  </button>
-                  <button class="mode" type="button" data-mode="call">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15 15 0 006.6 6.6l2.2-2.2a1 1 0 011-.24c1.1.36 2.3.56 3.5.56a1 1 0 011 1V20a1 1 0 01-1 1C11.4 21 3 12.6 3 2a1 1 0 011-1h3.5a1 1 0 011 1c0 1.2.2 2.4.56 3.5a1 1 0 01-.24 1l-2.22 2.3z"/></svg>
-                    AI Call
-                  </button>
-                  <button class="mode" type="button" data-mode="video">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 012-2h9a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7zm14 2.5l4-2.5v10l-4-2.5V9.5z"/></svg>
-                    Video Call
-                  </button>
-                </div>
+              </div>
+
+              <div class="hero-modes ai-modes" role="group" aria-label="Talk to GoodScore AI">
+                <button class="mode" type="button" data-mode="chat">
+                  <span class="mode-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H9l-4 3v-3H6a2 2 0 01-2-2V5z"/></svg>
+                  </span>
+                  <span class="mode-copy">
+                    <strong>AI Chat</strong>
+                    <span>Ask your agent anything</span>
+                  </span>
+                </button>
+                <button class="mode" type="button" data-mode="call">
+                  <span class="mode-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M6.6 10.8a15 15 0 006.6 6.6l2.2-2.2a1 1 0 011-.24c1.1.36 2.3.56 3.5.56a1 1 0 011 1V20a1 1 0 01-1 1C11.4 21 3 12.6 3 2a1 1 0 011-1h3.5a1 1 0 011 1c0 1.2.2 2.4.56 3.5a1 1 0 01-.24 1l-2.22 2.3z"/></svg>
+                  </span>
+                  <span class="mode-copy">
+                    <strong>AI Call</strong>
+                    <span>Negotiate live, instantly</span>
+                  </span>
+                </button>
+                <button class="mode" type="button" data-mode="video">
+                  <span class="mode-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 012-2h9a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7zm14 2.5l4-2.5v10l-4-2.5V9.5z"/></svg>
+                  </span>
+                  <span class="mode-copy">
+                    <strong>AI Video Call</strong>
+                    <span>Walk through your report</span>
+                  </span>
+                </button>
               </div>
 
               <div class="pillar-stage" data-pillars>
@@ -312,27 +331,105 @@
         </div>
       </section>
 
+      <!-- ========== TRUST STRIP ========== -->
+      <aside class="trust-strip" aria-label="Trusted and secured">
+        <p class="trust-kicker">Trusted &amp; secured</p>
+        <ul class="trust-list">
+          <li>
+            <img class="trust-logo trust-logo-sm" src="assets/trust-markers/cibil.png" alt="CIBIL" />
+          </li>
+          <li>
+            <img class="trust-logo" src="assets/trust-markers/experian.png" alt="Experian" />
+          </li>
+          <li>
+            <img class="trust-logo trust-logo-sm" src="assets/trust-markers/crif.svg" alt="CRIF High Mark" />
+          </li>
+          <li>
+            <img class="trust-logo" src="assets/trust-markers/pci.avif" alt="PCI-DSS" />
+          </li>
+          <li>
+            <img class="trust-logo" src="assets/trust-markers/soc.png" alt="SOC 2" />
+          </li>
+          <li>
+            <img class="trust-logo" src="assets/trust-markers/iso.jpg" alt="ISO" />
+          </li>
+          <li>
+            <img class="trust-logo" src="assets/trust-markers/bharatconnect.svg" alt="Bharat Connect" />
+          </li>
+          <li>
+            <img class="trust-logo trust-logo-sm" src="assets/trust-markers/upi.webp" alt="UPI" />
+          </li>
+        </ul>
+      </aside>
+
       <!-- ========== IMPACT ========== -->
-      <section class="impact" id="impact" aria-label="GoodScore impact">
+      <section class="impact" id="impact" aria-label="GoodScore impact" data-impact>
+        <div class="impact-glow" aria-hidden="true"></div>
         <header class="impact-head">
           <p class="eyebrow">Proven at scale</p>
           <h2>Helping Indians improve credit score</h2>
         </header>
 
         <div class="impact-metrics" role="list">
-          <article class="impact-metric" role="listitem">
+          <article class="impact-metric" role="listitem" style="--i: 0">
+            <span class="impact-icon" aria-hidden="true">
+              <svg viewBox="0 0 40 40" fill="none">
+                <path d="M8 28 L16 18 L22 24 L32 10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="32" cy="10" r="2.5" fill="currentColor"/>
+              </svg>
+            </span>
             <span class="impact-index">01</span>
-            <p class="impact-value">11 Lakh+</p>
+            <p
+              class="impact-value"
+              data-impact-count
+              data-count-to="11"
+              data-count-suffix=" Lakh+"
+              data-count-decimals="0"
+            >
+              11 Lakh+
+            </p>
             <p class="impact-label">Users improved their score</p>
           </article>
-          <article class="impact-metric" role="listitem">
+          <article class="impact-metric" role="listitem" style="--i: 1">
+            <span class="impact-icon" aria-hidden="true">
+              <svg viewBox="0 0 40 40" fill="none">
+                <path d="M12 28c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+                <circle cx="20" cy="14" r="5" stroke="currentColor" stroke-width="2.4"/>
+                <path d="M8 30h24" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" opacity="0.45"/>
+              </svg>
+            </span>
             <span class="impact-index">02</span>
-            <p class="impact-value">15 Lakh+</p>
+            <p
+              class="impact-value"
+              data-impact-count
+              data-count-to="15"
+              data-count-suffix=" Lakh+"
+              data-count-decimals="0"
+            >
+              15 Lakh+
+            </p>
             <p class="impact-label">Expert advice shared on call</p>
           </article>
-          <article class="impact-metric" role="listitem">
+          <article class="impact-metric" role="listitem" style="--i: 2">
+            <span class="impact-icon" aria-hidden="true">
+              <svg viewBox="0 0 40 40" fill="none">
+                <rect x="9" y="12" width="22" height="16" rx="3" stroke="currentColor" stroke-width="2.4"/>
+                <path d="M9 18h22" stroke="currentColor" stroke-width="2.4"/>
+                <circle cx="20" cy="24" r="2.2" fill="currentColor"/>
+              </svg>
+            </span>
             <span class="impact-index">03</span>
-            <p class="impact-value">₹6,200 Cr+</p>
+            <p
+              class="impact-value"
+              data-impact-count
+              data-count-to="6200"
+              data-count-prefix="₹"
+              data-count-suffix=" Cr+"
+              data-count-decimals="0"
+              data-count-commas="true"
+            >
+              ₹6,200 Cr+
+            </p>
             <p class="impact-label">User loans managed</p>
           </article>
         </div>
@@ -340,238 +437,530 @@
 
       <!-- ========== STORY ========== -->
       <section class="story" id="story" aria-label="How GoodScore works">
-        <div class="story-sticky">
-          <div class="story-layout">
-            <div class="story-copy">
-              <div class="story-intro">
-                <p class="eyebrow">How GoodScore works</p>
-                <h2>From a damaged report to<br /><span class="story-line">loan-ready — watched by AI.</span></h2>
+        <div class="story-agent-scene" data-agent-scene id="how-it-works">
+          <div class="story-agent-snap-solo" aria-hidden="true"></div>
+          <div class="story-agent-veil" data-agent-veil aria-hidden="true"></div>
+          <div class="story-agent-sticky">
+            <div class="story-agent-stage" data-agent-stage>
+              <div class="story-agent-cluster">
+                <div class="agent-feature-strip" data-feature-strip aria-hidden="true">
+                  <div class="agent-feature-track" data-feature-track>
+                    <img class="agent-feature" src="assets/agent-features/low-score.png?v=6" alt="Low score? Improve score" width="924" height="1082" draggable="false" />
+                    <img class="agent-feature" src="assets/agent-features/score-750.png?v=6" alt="Score 750+? Repay with us" width="924" height="1082" draggable="false" />
+                    <img class="agent-feature" src="assets/agent-features/need-money.png?v=6" alt="Need money? Get loans" width="924" height="1082" draggable="false" />
+                    <img class="agent-feature" src="assets/agent-features/unable-repay.png?v=6" alt="Unable to repay loans? Get discounts" width="924" height="1082" draggable="false" />
+                  </div>
+                </div>
+
+                <div class="gs-agent" data-gs-agent aria-hidden="true">
+                  <div class="gs-agent-mover">
+                    <span class="gs-agent-glow"></span>
+                    <span class="gs-agent-pulse" aria-hidden="true"></span>
+                    <span class="gs-agent-pulse-b" aria-hidden="true"></span>
+                    <span class="gs-agent-sphere">
+                      <span class="gs-agent-iris">
+                        <span class="gs-agent-pupil"></span>
+                      </span>
+                    </span>
+                    <span class="gs-agent-scan-ray" data-agent-scan-ray aria-hidden="true"></span>
+                  </div>
+                </div>
               </div>
 
-              <ol class="story-timeline" aria-label="Story steps">
-                <li>
-                  <div class="story-step is-active" data-goto="0">
-                    <span class="story-step-index">01</span>
-                    <span class="story-step-label">Report arrives</span>
-                  </div>
-                </li>
-                <li>
-                  <div class="story-step" data-goto="1">
-                    <span class="story-step-index">02</span>
-                    <span class="story-step-label">AI finds problems</span>
-                  </div>
-                </li>
-                <li>
-                  <div class="story-step" data-goto="2">
-                    <span class="story-step-index">03</span>
-                    <span class="story-step-label">Actions created</span>
-                  </div>
-                </li>
-                <li>
-                  <div class="story-step" data-goto="3">
-                    <span class="story-step-index">04</span>
-                    <span class="story-step-label">Issues resolved</span>
-                  </div>
-                </li>
-                <li>
-                  <div class="story-step" data-goto="4">
-                    <span class="story-step-index">05</span>
-                    <span class="story-step-label">Score improves</span>
-                  </div>
-                </li>
-                <li>
-                  <div class="story-step" data-goto="5">
-                    <span class="story-step-index">06</span>
-                    <span class="story-step-label">Loans unlock</span>
-                  </div>
-                </li>
-              </ol>
-            </div>
+              <canvas
+                class="story-agent-confetti"
+                data-agent-confetti
+                aria-hidden="true"
+              ></canvas>
 
-            <div class="story-phone">
-              <div class="story-phone-bezel">
-                <div class="story-phone-screen">
-                  <div class="story-phone-status">
-                    <span class="story-phone-time">9:41</span>
-                    <span class="story-phone-app">GoodScore</span>
-                    <span class="story-phone-signal" aria-hidden="true"></span>
+              <div
+                class="story-agent-phone-stage"
+                data-agent-phone-stage
+                aria-hidden="true"
+              >
+                <div class="story-agent-phone-flip">
+                  <div class="story-agent-phone is-front" data-agent-phone>
+                    <img
+                      class="story-agent-phone-img"
+                      src="assets/agent-screens/screen1.png?v=3"
+                      alt="Credit report being scanned"
+                      width="1149"
+                      height="2166"
+                      draggable="false"
+                    />
+                    <div class="phone-score-hud" data-phone-score aria-hidden="true">
+                      <span class="phone-score-num-mask" aria-hidden="true"></span>
+                      <span class="phone-score-label-mask" aria-hidden="true"></span>
+                      <strong class="phone-score-num" data-score-num>550</strong>
+                      <span class="phone-score-label" data-score-label>VERY BAD</span>
+                    </div>
                   </div>
 
-                  <div class="story-stage">
-                    <div class="story-canvas" data-story-canvas>
-                      <!-- Scene 0: Bad report -->
-                      <div class="scene is-active" data-scene="0">
-                        <div class="report-card report-bad">
-                          <div class="report-scan" aria-hidden="true">
-                            <span class="report-scan-beam"></span>
-                          </div>
-                          <header>
-                            <span class="mono">CREDIT REPORT · INBOUND</span>
-                            <span class="badge bad">At risk</span>
-                          </header>
-                          <div class="score-big bad-score">
-                            <span>Score</span>
-                            <strong data-score-display>582</strong>
-                          </div>
-                          <ul class="report-rows">
-                            <li><span>Payment history</span><b class="bad-text">Poor</b></li>
-                            <li><span>Utilisation</span><b class="bad-text">89%</b></li>
-                            <li><span>Enquiries (90d)</span><b class="bad-text">11</b></li>
-                            <li><span>Active accounts</span><b>14</b></li>
-                          </ul>
-                        </div>
+                  <div
+                    class="story-agent-score-improve is-back"
+                    data-agent-score-improve
+                    aria-hidden="true"
+                  >
+                    <img
+                      class="story-agent-score-improve-img"
+                      src="assets/agent-screens/score-improves.svg?v=1"
+                      alt="Score 810 Great — GoodScore helped you"
+                      width="383"
+                      height="723"
+                      draggable="false"
+                    />
+                    <div
+                      class="story-agent-pay"
+                      data-agent-pay
+                      aria-hidden="true"
+                    >
+                      <img
+                        class="story-agent-pay-shell"
+                        src="assets/agent-screens/pay-shell.svg?v=2"
+                        alt=""
+                        width="383"
+                        height="723"
+                        draggable="false"
+                      />
+                      <img
+                        class="story-agent-pay-card"
+                        data-pay-card="0"
+                        src="assets/agent-screens/pay-card-0.svg?v=2"
+                        alt=""
+                        width="383"
+                        height="723"
+                        draggable="false"
+                      />
+                      <div class="story-agent-pay-card-host" data-pay-card="1">
+                        <img
+                          class="story-agent-pay-card"
+                          data-pay-card="1"
+                          src="assets/agent-screens/pay-card-1.svg?v=2"
+                          alt=""
+                          width="383"
+                          height="723"
+                          draggable="false"
+                        />
+                        <span class="pay-card-emitter" data-pay-emitter></span>
                       </div>
-
-                      <!-- Scene 1: AI identifies -->
-                      <div class="scene" data-scene="1">
-                        <div class="ai-panel">
-                          <div class="ai-face" aria-hidden="true">
-                            <div class="ai-ring"></div>
-                            <div class="ai-core"></div>
-                          </div>
-                          <p class="mono" data-scan-label>SCANNING REPORT…</p>
-                          <ul class="issue-list">
-                            <li class="issue reveal-1">
-                              <span class="issue-tag">Overdue</span>
-                              HDFC · 97 days · ₹48,200
-                            </li>
-                            <li class="issue reveal-2">
-                              <span class="issue-tag">Enquiries</span>
-                              11 hard pulls in 90 days
-                            </li>
-                            <li class="issue reveal-3">
-                              <span class="issue-tag">Idle</span>
-                              4 unused revolving accounts
-                            </li>
-                            <li class="issue reveal-4">
-                              <span class="issue-tag">Utilisation</span>
-                              Credit cards at 89%
-                            </li>
-                          </ul>
+                      <img
+                        class="story-agent-pay-card"
+                        data-pay-card="2"
+                        src="assets/agent-screens/pay-card-2.svg?v=2"
+                        alt=""
+                        width="383"
+                        height="723"
+                        draggable="false"
+                      />
+                      <span class="story-agent-pay-fade" aria-hidden="true"></span>
+                      <div
+                        class="pay-reward-fx"
+                        data-pay-reward-fx
+                        aria-hidden="true"
+                      >
+                        <div class="pay-points" data-pay-points="0">
+                          <img
+                            class="pay-points-bg"
+                            src="assets/agent-screens/coincount-blank.svg"
+                            alt=""
+                            draggable="false"
+                          />
+                          <span class="pay-points-num">+0</span>
                         </div>
-                      </div>
-
-                      <!-- Scene 2: Actionables -->
-                      <div class="scene" data-scene="2">
-                        <div class="action-board">
-                          <p class="mono">AI ACTION PLAN</p>
-                          <div class="action-item">
-                            <div>
-                              <strong>Negotiate overdue discount</strong>
-                              <span>HDFC settlement desk · AI call queued</span>
-                            </div>
-                            <em>−38%</em>
-                          </div>
-                          <div class="action-item">
-                            <div>
-                              <strong>Close unused accounts</strong>
-                              <span>Reduce risk signals on 4 cards</span>
-                            </div>
-                            <em>Close</em>
-                          </div>
-                          <div class="action-item">
-                            <div>
-                              <strong>Freeze new enquiries</strong>
-                              <span>Block unnecessary hard pulls</span>
-                            </div>
-                            <em>Protect</em>
-                          </div>
-                          <div class="action-item">
-                            <div>
-                              <strong>Pay down utilisation</strong>
-                              <span>Bring revolving use under 30%</span>
-                            </div>
-                            <em>Pay</em>
-                          </div>
+                        <div class="pay-points" data-pay-points="1">
+                          <img
+                            class="pay-points-bg"
+                            src="assets/agent-screens/coincount-blank.svg"
+                            alt=""
+                            draggable="false"
+                          />
+                          <span class="pay-points-num">+0</span>
                         </div>
-                      </div>
-
-                      <!-- Scene 3: Resolving -->
-                      <div class="scene" data-scene="3">
-                        <div class="resolve-grid">
-                          <div class="resolve-card done">
-                            <span class="mono">SETTLED</span>
-                            <strong>HDFC overdue</strong>
-                            <p>Paid ₹29,900 after AI discount</p>
-                            <div class="check" aria-hidden="true"></div>
-                          </div>
-                          <div class="resolve-card done">
-                            <span class="mono">CLOSED</span>
-                            <strong>Idle accounts</strong>
-                            <p>4 unused cards closed</p>
-                            <div class="check" aria-hidden="true"></div>
-                          </div>
-                          <div class="resolve-card done">
-                            <span class="mono">CLEARED</span>
-                            <strong>Enquiry noise</strong>
-                            <p>Dispute filed on 3 errors</p>
-                            <div class="check" aria-hidden="true"></div>
-                          </div>
-                          <div class="resolve-card progress">
-                            <span class="mono">RUNNING</span>
-                            <strong>Utilisation</strong>
-                            <p>Dropping toward 28%</p>
-                            <div class="bar"><i style="--w: 72%"></i></div>
-                          </div>
+                        <div class="pay-points" data-pay-points="2">
+                          <img
+                            class="pay-points-bg"
+                            src="assets/agent-screens/coincount-blank.svg"
+                            alt=""
+                            draggable="false"
+                          />
+                          <span class="pay-points-num">+0</span>
                         </div>
-                      </div>
-
-                      <!-- Scene 4: Score improved -->
-                      <div class="scene" data-scene="4">
-                        <div class="score-rise">
-                          <div class="score-compare">
-                            <div>
-                              <span>Before</span>
-                              <strong class="bad-text">582</strong>
-                            </div>
-                            <div class="rise-arrow" aria-hidden="true"></div>
-                            <div>
-                              <span>After</span>
-                              <strong class="good-text" data-rise-score>768</strong>
-                            </div>
-                          </div>
-                          <p class="rise-note">
-                            Problems resolved. Bureau signals cleaned. Your score is
-                            climbing into the healthy zone.
-                          </p>
-                          <div class="rise-meter" aria-hidden="true">
-                            <div class="rise-fill"></div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Scene 5: Loans -->
-                      <div class="scene" data-scene="5">
-                        <div class="eligible">
-                          <p class="mono">ELIGIBILITY UNLOCKED</p>
-                          <h3>You’re ready for better credit.</h3>
-                          <p>
-                            With 750+ behaviour signals, lenders open higher limits and
-                            lower rates — right inside GoodScore.
-                          </p>
-                          <div class="eligible-offers">
-                            <div>
-                              <span>Personal loan</span>
-                              <strong>₹4.5L</strong>
-                              <em>@10.2%</em>
-                            </div>
-                            <div>
-                              <span>Credit card</span>
-                              <strong>₹1.2L</strong>
-                              <em>limit</em>
-                            </div>
-                          </div>
-                        </div>
+                        <div class="pay-reward-fly" data-pay-reward-fly></div>
                       </div>
                     </div>
                   </div>
-                  <div class="story-phone-home" aria-hidden="true"></div>
+                </div>
+              </div>
+
+              <div class="story-agent-explode" data-agent-explode aria-hidden="true">
+                <div class="explode-stage">
+                  <div
+                    class="explode-card-wrap"
+                    data-explode-wrap="0"
+                    style="--dx: -232.2; --dy: 7.8; --tag-l: 24.15%; --tag-t: 35.82%; --tag-w: 18.96%; --tag-h: 4.54%; --card-l: 3.57%; --card-t: 37.76%; --card-w: 37.79%; --card-h: 19.47%"
+                  >
+                    <img
+                      class="explode-card"
+                      data-explode-card="0"
+                      src="assets/agent-screens/screen2-card-0.svg?v=10"
+                      alt=""
+                      width="800"
+                      height="723"
+                      draggable="false"
+                    />
+                    <span class="explode-card-glow" aria-hidden="true"></span>
+                    <span class="explode-fix-tag">
+                      <svg viewBox="163.533 257 185 40" preserveAspectRatio="none" aria-hidden="true">
+                        <path d="M163.533 257H324.533C337.788 257 348.533 267.745 348.533 281V297H187.533C174.278 297 163.533 286.255 163.533 273V257Z" fill="#4aacef"/>
+                      </svg>
+                      <span class="explode-fix-tag-label"><img class="explode-fix-tick" src="assets/agent-screens/check.png?v=1" alt="" width="16" height="16" draggable="false" /><span>28% discount</span></span>
+                    </span>
+                    <div class="gs-agent gs-agent-on-card is-awake" data-card-agent aria-hidden="true">
+                      <div class="gs-agent-mover">
+                        <span class="gs-agent-glow"></span>
+                        <span class="gs-agent-pulse" aria-hidden="true"></span>
+                        <span class="gs-agent-pulse-b" aria-hidden="true"></span>
+                        <span class="gs-agent-sphere">
+                          <span class="gs-agent-iris">
+                            <span class="gs-agent-pupil"></span>
+                          </span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="explode-card-wrap"
+                    data-explode-wrap="1"
+                    style="--dx: 125.8; --dy: -96.2; --tag-l: 73.61%; --tag-t: 21.44%; --tag-w: 14.25%; --tag-h: 4.54%; --card-l: 48.32%; --card-t: 23.37%; --card-w: 37.79%; --card-h: 19.47%"
+                  >
+                    <img
+                      class="explode-card"
+                      data-explode-card="1"
+                      src="assets/agent-screens/screen2-card-1.svg?v=10"
+                      alt=""
+                      width="800"
+                      height="723"
+                      draggable="false"
+                    />
+                    <span class="explode-card-glow" aria-hidden="true"></span>
+                    <span class="explode-fix-tag">
+                      <svg viewBox="566.533 153 139 40" preserveAspectRatio="none" aria-hidden="true">
+                        <path d="M566.533 153H681.533C694.788 153 705.533 163.745 705.533 177V193H590.533C577.278 193 566.533 182.255 566.533 169V153Z" fill="#4aacef"/>
+                      </svg>
+                      <span class="explode-fix-tag-label"><img class="explode-fix-tick" src="assets/agent-screens/check.png?v=1" alt="" width="16" height="16" draggable="false" /><span>Account closed</span></span>
+                    </span>
+                    <div class="gs-agent gs-agent-on-card is-awake" data-card-agent aria-hidden="true">
+                      <div class="gs-agent-mover">
+                        <span class="gs-agent-glow"></span>
+                        <span class="gs-agent-pulse" aria-hidden="true"></span>
+                        <span class="gs-agent-pulse-b" aria-hidden="true"></span>
+                        <span class="gs-agent-sphere">
+                          <span class="gs-agent-iris">
+                            <span class="gs-agent-pupil"></span>
+                          </span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="explode-card-wrap"
+                    data-explode-wrap="2"
+                    style="--dx: -53; --dy: 235.9; --tag-l: 48.44%; --tag-t: 66.11%; --tag-w: 15.99%; --tag-h: 4.54%; --card-l: 24.69%; --card-t: 68.05%; --card-w: 37.99%; --card-h: 20.81%"
+                  >
+                    <img
+                      class="explode-card"
+                      data-explode-card="2"
+                      src="assets/agent-screens/screen2-card-2.svg?v=10"
+                      alt=""
+                      width="800"
+                      height="723"
+                      draggable="false"
+                    />
+                    <span class="explode-card-glow" aria-hidden="true"></span>
+                    <span class="explode-fix-tag">
+                      <svg viewBox="361.533 476 156 40" preserveAspectRatio="none" aria-hidden="true">
+                        <path d="M361.533 476H493.533C506.788 476 517.533 486.745 517.533 500V516H385.533C372.278 516 361.533 505.255 361.533 492V476Z" fill="#4aacef"/>
+                      </svg>
+                      <span class="explode-fix-tag-label"><img class="explode-fix-tick" src="assets/agent-screens/check.png?v=1" alt="" width="16" height="16" draggable="false" /><span>Limit optimised</span></span>
+                    </span>
+                    <div class="gs-agent gs-agent-on-card is-awake" data-card-agent aria-hidden="true">
+                      <div class="gs-agent-mover">
+                        <span class="gs-agent-glow"></span>
+                        <span class="gs-agent-pulse" aria-hidden="true"></span>
+                        <span class="gs-agent-pulse-b" aria-hidden="true"></span>
+                        <span class="gs-agent-sphere">
+                          <span class="gs-agent-iris">
+                            <span class="gs-agent-pupil"></span>
+                          </span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="explode-card-wrap"
+                    data-explode-wrap="3"
+                    style="--dx: 194.5; --dy: 71.8; --tag-l: 82.42%; --tag-t: 49.10%; --tag-w: 13.02%; --tag-h: 4.54%; --card-l: 55.57%; --card-t: 51.04%; --card-w: 38.12%; --card-h: 9.44%"
+                  >
+                    <img
+                      class="explode-card"
+                      data-explode-card="3"
+                      src="assets/agent-screens/screen2-card-3.svg?v=10"
+                      alt=""
+                      width="800"
+                      height="723"
+                      draggable="false"
+                    />
+                    <span class="explode-card-glow" aria-hidden="true"></span>
+                    <span class="explode-fix-tag">
+                      <svg viewBox="638.533 353 127 40" preserveAspectRatio="none" aria-hidden="true">
+                        <path d="M638.533 353H741.533C754.788 353 765.533 363.745 765.533 377V393H662.533C649.278 393 638.533 382.255 638.533 369V353Z" fill="#4aacef"/>
+                      </svg>
+                      <span class="explode-fix-tag-label"><img class="explode-fix-tick" src="assets/agent-screens/check.png?v=1" alt="" width="16" height="16" draggable="false" /><span>avoid more</span></span>
+                    </span>
+                    <div class="gs-agent gs-agent-on-card is-awake" data-card-agent aria-hidden="true">
+                      <div class="gs-agent-mover">
+                        <span class="gs-agent-glow"></span>
+                        <span class="gs-agent-pulse" aria-hidden="true"></span>
+                        <span class="gs-agent-pulse-b" aria-hidden="true"></span>
+                        <span class="gs-agent-sphere">
+                          <span class="gs-agent-iris">
+                            <span class="gs-agent-pupil"></span>
+                          </span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="story-agent-copy" data-agent-copy>
+                <div class="story-agent-headline">
+                  <p class="story-agent-line" data-agent-line>
+                    <span class="line-a">GoodScore AI is always working for</span><span class="line-all"> all of</span><span class="line-b"> you</span>
+                  </p>
+                  <p class="story-agent-howto-line" data-agent-howto-line>How do we do this?</p>
+                </div>
+                <div class="story-agent-sub-stack">
+                  <p class="story-agent-sub">Our AI works 24x7 to give you real time alerts</p>
+                  <p class="story-agent-howto-sub">Hang on! We will show you</p>
+                </div>
+              </div>
+
+              <div class="story-agent-side-copy" data-agent-side-copy aria-hidden="true">
+                <div class="story-agent-progress" data-agent-progress aria-hidden="true">
+                  <span class="progress-seg" data-seg="0"></span>
+                  <span class="progress-seg" data-seg="1"></span>
+                  <span class="progress-seg" data-seg="2"></span>
+                  <span class="progress-seg" data-seg="3"></span>
+                  <span class="progress-seg" data-seg="4"></span>
+                  <span class="progress-seg" data-seg="5"></span>
+                </div>
+                <div class="side-copy-text">
+                  <div class="side-copy-layer is-scan is-on" data-agent-scan-copy>
+                    <p class="story-agent-scan-line">We scan your report</p>
+                    <p class="story-agent-scan-sub">Our AI agent keeps scanning your report in real time</p>
+                  </div>
+                  <div class="side-copy-layer is-explode" data-agent-explode-copy>
+                    <p class="story-agent-scan-line">AI finds problems</p>
+                    <p class="story-agent-scan-sub">We find our problems in your report</p>
+                  </div>
+                  <div class="side-copy-layer is-resolve" data-agent-resolve-copy>
+                    <p class="story-agent-scan-line">Resolve issues</p>
+                    <p class="story-agent-scan-sub">We keep fixing the problems in your report</p>
+                  </div>
+                  <div class="side-copy-layer is-score" data-agent-score-copy>
+                    <p class="story-agent-scan-line">Score improves</p>
+                    <p class="story-agent-scan-sub">We help you take your score above 750</p>
+                  </div>
+                  <div class="side-copy-layer is-pay" data-agent-pay-copy>
+                    <p class="story-agent-scan-line">Pay your bills with us</p>
+                    <p class="story-agent-scan-sub">And earn exciting rewards.</p>
+                  </div>
+                  <div class="side-copy-layer is-rewards" data-agent-rewards-copy>
+                    <p class="story-agent-scan-line">
+                      And earn <span class="reward-gold">rewards</span>
+                    </p>
+                    <p class="story-agent-scan-sub">And earn exciting rewards.</p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+          <div class="story-agent-spacer" aria-hidden="true"></div>
         </div>
-        <div class="story-spacer" aria-hidden="true"></div>
+
+      </section>
+
+      <!-- ========== LOANS ========== -->
+      <section class="loans" id="loans">
+        <div class="section-head">
+          <p class="eyebrow">Grow with GoodScore</p>
+          <h2>Loan offers when your score is ready.</h2>
+          <p class="section-sub">
+            After AI clears blockers and lifts your score, browse live offers
+            curated for your new profile.
+          </p>
+        </div>
+
+        <div class="loan-wall" data-loan-rail>
+          <div class="loan-rail">
+            <article class="loan-offer" aria-hidden="true">
+              <header>
+                <span class="lender-pill">ICICI Bank</span>
+                <span class="rate">11.25%<small>p.a.</small></span>
+              </header>
+              <h3>Credit Card Limit</h3>
+              <p class="loan-amount">₹1,50,000</p>
+              <ul>
+                <li>Lifetime free variant</li>
+                <li>Reward points on spends</li>
+              </ul>
+            </article>
+
+            <article class="loan-offer">
+              <header>
+                <span class="lender-pill">Bajaj Finserv</span>
+                <span class="rate">10.49%<small>p.a.</small></span>
+              </header>
+              <h3>Personal Loan</h3>
+              <p class="loan-amount">₹5,00,000</p>
+              <ul>
+                <li>Tenure up to 60 months</li>
+                <li>Instant disbursal</li>
+              </ul>
+            </article>
+
+            <article class="loan-offer featured">
+              <header>
+                <span class="lender-pill">HDFC Bank</span>
+                <span class="rate">9.90%<small>p.a.</small></span>
+              </header>
+              <h3>Flexi Personal Loan</h3>
+              <p class="loan-amount">₹8,00,000</p>
+              <ul>
+                <li>Pre-approved for 750+</li>
+                <li>Pay interest on use</li>
+              </ul>
+            </article>
+
+            <article class="loan-offer">
+              <header>
+                <span class="lender-pill">Tata Capital</span>
+                <span class="rate">10.75%<small>p.a.</small></span>
+              </header>
+              <h3>Business Loan</h3>
+              <p class="loan-amount">₹12,00,000</p>
+              <ul>
+                <li>Working capital ready</li>
+                <li>Flexible EMIs</li>
+              </ul>
+            </article>
+
+            <article class="loan-offer" aria-hidden="true">
+              <header>
+                <span class="lender-pill">Axis Bank</span>
+                <span class="rate">10.99%<small>p.a.</small></span>
+              </header>
+              <h3>Personal Loan</h3>
+              <p class="loan-amount">₹4,50,000</p>
+              <ul>
+                <li>Quick approval</li>
+                <li>Flexible tenure</li>
+              </ul>
+            </article>
+
+            <article class="loan-offer" aria-hidden="true">
+              <header>
+                <span class="lender-pill">Kotak</span>
+                <span class="rate">10.25%<small>p.a.</small></span>
+              </header>
+              <h3>Flexi Loan</h3>
+              <p class="loan-amount">₹7,00,000</p>
+              <ul>
+                <li>Draw as you need</li>
+                <li>Interest on use</li>
+              </ul>
+            </article>
+
+            <article class="loan-offer" aria-hidden="true">
+              <header>
+                <span class="lender-pill">SBI</span>
+                <span class="rate">9.75%<small>p.a.</small></span>
+              </header>
+              <h3>Home Top-up</h3>
+              <p class="loan-amount">₹15,00,000</p>
+              <ul>
+                <li>Against existing home</li>
+                <li>Longer tenure</li>
+              </ul>
+            </article>
+
+            <article class="loan-offer" aria-hidden="true">
+              <header>
+                <span class="lender-pill">Bajaj Finserv</span>
+                <span class="rate">10.49%<small>p.a.</small></span>
+              </header>
+              <h3>Personal Loan</h3>
+              <p class="loan-amount">₹5,00,000</p>
+              <ul>
+                <li>Tenure up to 60 months</li>
+                <li>Instant disbursal</li>
+              </ul>
+            </article>
+
+            <article class="loan-offer" aria-hidden="true">
+              <header>
+                <span class="lender-pill">IDFC First</span>
+                <span class="rate">10.85%<small>p.a.</small></span>
+              </header>
+              <h3>Personal Loan</h3>
+              <p class="loan-amount">₹6,00,000</p>
+              <ul>
+                <li>Doorstep KYC</li>
+                <li>Fast disbursal</li>
+              </ul>
+            </article>
+
+            <article class="loan-offer" aria-hidden="true">
+              <header>
+                <span class="lender-pill">Yes Bank</span>
+                <span class="rate">11.10%<small>p.a.</small></span>
+              </header>
+              <h3>Business Loan</h3>
+              <p class="loan-amount">₹10,00,000</p>
+              <ul>
+                <li>Working capital</li>
+                <li>Flexible EMIs</li>
+              </ul>
+            </article>
+
+            <article class="loan-offer" aria-hidden="true">
+              <header>
+                <span class="lender-pill">HDFC Bank</span>
+                <span class="rate">9.90%<small>p.a.</small></span>
+              </header>
+              <h3>Flexi Personal Loan</h3>
+              <p class="loan-amount">₹8,00,000</p>
+              <ul>
+                <li>Pre-approved for 750+</li>
+                <li>Pay interest on use</li>
+              </ul>
+            </article>
+
+            <article class="loan-offer" aria-hidden="true">
+              <header>
+                <span class="lender-pill">IndusInd</span>
+                <span class="rate">11.40%<small>p.a.</small></span>
+              </header>
+              <h3>Credit Card Limit</h3>
+              <p class="loan-amount">₹2,00,000</p>
+              <ul>
+                <li>Lifestyle rewards</li>
+                <li>Virtual card ready</li>
+              </ul>
+            </article>
+          </div>
+        </div>
       </section>
 
       <!-- ========== LENDERS ========== -->
@@ -688,73 +1077,99 @@
         </div>
       </section>
 
-      <!-- ========== LOANS ========== -->
-      <section class="loans" id="loans">
-        <div class="section-head">
-          <p class="eyebrow">Grow with GoodScore</p>
-          <h2>Loan offers when your score is ready.</h2>
-          <p class="section-sub">
-            After AI clears blockers and lifts your score, browse live offers
-            curated for your new profile.
-          </p>
-        </div>
+      <!-- ========== WHY GOODSCORE ========== -->
+      <section class="why-gs" id="why-goodscore" aria-labelledby="why-gs-title">
+        <div class="why-gs-inner">
+          <div class="section-head why-gs-head">
+            <p class="eyebrow">Why GoodScore</p>
+            <h2 id="why-gs-title">AI to find it. Experts to fix it.</h2>
+            <p class="section-sub">
+              Free credit apps stop at the number. GoodScore pairs AI
+              problem-detection with real experts who help you act on it.
+            </p>
+          </div>
 
-        <div class="loan-rail" data-loan-rail>
-          <article class="loan-offer">
-            <header>
-              <span class="lender-pill">Bajaj Finserv</span>
-              <span class="rate">10.49%<small>p.a.</small></span>
-            </header>
-            <h3>Personal Loan</h3>
-            <p class="loan-amount">₹5,00,000</p>
-            <ul>
-              <li>Tenure up to 60 months</li>
-              <li>Instant disbursal</li>
-              <li>No collateral</li>
-            </ul>
-          </article>
+          <div class="why-table-wrap">
+            <div class="why-compare" role="table" aria-label="GoodScore compared with other apps">
+              <div class="why-col why-col-points" role="rowgroup">
+                <div class="why-head" role="columnheader">What you get</div>
+                <div class="why-row" role="rowheader">Check credit score &amp; report</div>
+                <div class="why-row" role="rowheader">AI report analysis &amp; problem detection</div>
+                <div class="why-row" role="rowheader">Personalised video from a real expert</div>
+                <div class="why-row" role="rowheader">Expert-built score improvement plan</div>
+                <div class="why-row" role="rowheader">Expert negotiation on overdues</div>
+                <div class="why-row" role="rowheader">24 × 7 human chat support</div>
+              </div>
 
-          <article class="loan-offer featured">
-            <header>
-              <span class="lender-pill">HDFC Bank</span>
-              <span class="rate">9.90%<small>p.a.</small></span>
-            </header>
-            <h3>Flexi Personal Loan</h3>
-            <p class="loan-amount">₹8,00,000</p>
-            <ul>
-              <li>Pre-approved for 750+</li>
-              <li>Pay interest on use</li>
-              <li>Digital KYC</li>
-            </ul>
-          </article>
+              <div class="why-col why-col-gs" role="rowgroup">
+                <div class="why-head" role="columnheader">GoodScore</div>
+                <div class="why-row" role="cell">
+                  <span class="why-mark is-yes" aria-label="Yes">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l5 5 9-11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                </div>
+                <div class="why-row" role="cell">
+                  <span class="why-mark is-yes" aria-label="Yes">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l5 5 9-11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                </div>
+                <div class="why-row" role="cell">
+                  <span class="why-mark is-yes" aria-label="Yes">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l5 5 9-11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                </div>
+                <div class="why-row" role="cell">
+                  <span class="why-mark is-yes" aria-label="Yes">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l5 5 9-11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                </div>
+                <div class="why-row" role="cell">
+                  <span class="why-mark is-yes" aria-label="Yes">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l5 5 9-11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                </div>
+                <div class="why-row" role="cell">
+                  <span class="why-mark is-yes" aria-label="Yes">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l5 5 9-11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                </div>
+              </div>
 
-          <article class="loan-offer">
-            <header>
-              <span class="lender-pill">ICICI Bank</span>
-              <span class="rate">11.25%<small>p.a.</small></span>
-            </header>
-            <h3>Credit Card Limit</h3>
-            <p class="loan-amount">₹1,50,000</p>
-            <ul>
-              <li>Lifetime free variant</li>
-              <li>Reward points on spends</li>
-              <li>Fast virtual card</li>
-            </ul>
-          </article>
-
-          <article class="loan-offer">
-            <header>
-              <span class="lender-pill">Tata Capital</span>
-              <span class="rate">10.75%<small>p.a.</small></span>
-            </header>
-            <h3>Business Loan</h3>
-            <p class="loan-amount">₹12,00,000</p>
-            <ul>
-              <li>Working capital ready</li>
-              <li>Flexible EMIs</li>
-              <li>Minimal docs</li>
-            </ul>
-          </article>
+              <div class="why-col why-col-other" role="rowgroup">
+                <div class="why-head" role="columnheader">Other apps</div>
+                <div class="why-row" role="cell">
+                  <span class="why-mark is-muted-yes" aria-label="Yes">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l5 5 9-11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                </div>
+                <div class="why-row" role="cell">
+                  <span class="why-mark is-no" aria-label="No">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+                  </span>
+                </div>
+                <div class="why-row" role="cell">
+                  <span class="why-mark is-no" aria-label="No">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+                  </span>
+                </div>
+                <div class="why-row" role="cell">
+                  <span class="why-mark is-no" aria-label="No">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+                  </span>
+                </div>
+                <div class="why-row" role="cell">
+                  <span class="why-mark is-no" aria-label="No">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+                  </span>
+                </div>
+                <div class="why-row" role="cell">
+                  <span class="why-mark is-no" aria-label="No">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -798,7 +1213,7 @@
                     <path d="M4 24 A20 20 0 0 1 44 24" fill="none" stroke="#e8ece9" stroke-width="4" stroke-linecap="round"/>
                     <path d="M4 24 A20 20 0 0 1 44 24" fill="none" stroke="url(#sg0)" stroke-width="4" stroke-linecap="round" stroke-dasharray="50" stroke-dashoffset="10"/>
                     <defs><linearGradient id="sg0" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#e67a2c"/><stop offset="1" stop-color="#1aa05a"/></linearGradient></defs>
-                    <circle cx="36" cy="12" r="2.5" fill="#0a6d5c"/>
+                    <circle cx="36" cy="12" r="2.5" fill="#1a649e"/>
                   </svg>
                   <span class="score-to">740</span>
                 </div>
@@ -815,7 +1230,7 @@
                     <path d="M4 24 A20 20 0 0 1 44 24" fill="none" stroke="#e8ece9" stroke-width="4" stroke-linecap="round"/>
                     <path d="M4 24 A20 20 0 0 1 44 24" fill="none" stroke="url(#sg1)" stroke-width="4" stroke-linecap="round" stroke-dasharray="50" stroke-dashoffset="10"/>
                     <defs><linearGradient id="sg1" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#e67a2c"/><stop offset="1" stop-color="#1aa05a"/></linearGradient></defs>
-                    <circle cx="36" cy="12" r="2.5" fill="#0a6d5c"/>
+                    <circle cx="36" cy="12" r="2.5" fill="#1a649e"/>
                   </svg>
                   <span class="score-to">758</span>
                 </div>
@@ -832,7 +1247,7 @@
                     <path d="M4 24 A20 20 0 0 1 44 24" fill="none" stroke="#e8ece9" stroke-width="4" stroke-linecap="round"/>
                     <path d="M4 24 A20 20 0 0 1 44 24" fill="none" stroke="url(#sg2)" stroke-width="4" stroke-linecap="round" stroke-dasharray="50" stroke-dashoffset="10"/>
                     <defs><linearGradient id="sg2" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#e67a2c"/><stop offset="1" stop-color="#1aa05a"/></linearGradient></defs>
-                    <circle cx="36" cy="12" r="2.5" fill="#0a6d5c"/>
+                    <circle cx="36" cy="12" r="2.5" fill="#1a649e"/>
                   </svg>
                   <span class="score-to">772</span>
                 </div>
@@ -849,7 +1264,7 @@
                     <path d="M4 24 A20 20 0 0 1 44 24" fill="none" stroke="#e8ece9" stroke-width="4" stroke-linecap="round"/>
                     <path d="M4 24 A20 20 0 0 1 44 24" fill="none" stroke="url(#sg3)" stroke-width="4" stroke-linecap="round" stroke-dasharray="50" stroke-dashoffset="10"/>
                     <defs><linearGradient id="sg3" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#e67a2c"/><stop offset="1" stop-color="#1aa05a"/></linearGradient></defs>
-                    <circle cx="36" cy="12" r="2.5" fill="#0a6d5c"/>
+                    <circle cx="36" cy="12" r="2.5" fill="#1a649e"/>
                   </svg>
                   <span class="score-to">710</span>
                 </div>
@@ -866,7 +1281,7 @@
                     <path d="M4 24 A20 20 0 0 1 44 24" fill="none" stroke="#e8ece9" stroke-width="4" stroke-linecap="round"/>
                     <path d="M4 24 A20 20 0 0 1 44 24" fill="none" stroke="url(#sg4)" stroke-width="4" stroke-linecap="round" stroke-dasharray="50" stroke-dashoffset="10"/>
                     <defs><linearGradient id="sg4" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#e67a2c"/><stop offset="1" stop-color="#1aa05a"/></linearGradient></defs>
-                    <circle cx="36" cy="12" r="2.5" fill="#0a6d5c"/>
+                    <circle cx="36" cy="12" r="2.5" fill="#1a649e"/>
                   </svg>
                   <span class="score-to">780</span>
                 </div>
@@ -883,7 +1298,7 @@
                     <path d="M4 24 A20 20 0 0 1 44 24" fill="none" stroke="#e8ece9" stroke-width="4" stroke-linecap="round"/>
                     <path d="M4 24 A20 20 0 0 1 44 24" fill="none" stroke="url(#sg5)" stroke-width="4" stroke-linecap="round" stroke-dasharray="50" stroke-dashoffset="10"/>
                     <defs><linearGradient id="sg5" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#e67a2c"/><stop offset="1" stop-color="#1aa05a"/></linearGradient></defs>
-                    <circle cx="36" cy="12" r="2.5" fill="#0a6d5c"/>
+                    <circle cx="36" cy="12" r="2.5" fill="#1a649e"/>
                   </svg>
                   <span class="score-to">745</span>
                 </div>
@@ -900,7 +1315,7 @@
                     <path d="M4 24 A20 20 0 0 1 44 24" fill="none" stroke="#e8ece9" stroke-width="4" stroke-linecap="round"/>
                     <path d="M4 24 A20 20 0 0 1 44 24" fill="none" stroke="url(#sg20)" stroke-width="4" stroke-linecap="round" stroke-dasharray="50" stroke-dashoffset="10"/>
                     <defs><linearGradient id="sg20" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#e67a2c"/><stop offset="1" stop-color="#1aa05a"/></linearGradient></defs>
-                    <circle cx="36" cy="12" r="2.5" fill="#0a6d5c"/>
+                    <circle cx="36" cy="12" r="2.5" fill="#1a649e"/>
                   </svg>
                   <span class="score-to">740</span>
                 </div>
@@ -917,7 +1332,7 @@
                     <path d="M4 24 A20 20 0 0 1 44 24" fill="none" stroke="#e8ece9" stroke-width="4" stroke-linecap="round"/>
                     <path d="M4 24 A20 20 0 0 1 44 24" fill="none" stroke="url(#sg21)" stroke-width="4" stroke-linecap="round" stroke-dasharray="50" stroke-dashoffset="10"/>
                     <defs><linearGradient id="sg21" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#e67a2c"/><stop offset="1" stop-color="#1aa05a"/></linearGradient></defs>
-                    <circle cx="36" cy="12" r="2.5" fill="#0a6d5c"/>
+                    <circle cx="36" cy="12" r="2.5" fill="#1a649e"/>
                   </svg>
                   <span class="score-to">758</span>
                 </div>
@@ -934,7 +1349,7 @@
                     <path d="M4 24 A20 20 0 0 1 44 24" fill="none" stroke="#e8ece9" stroke-width="4" stroke-linecap="round"/>
                     <path d="M4 24 A20 20 0 0 1 44 24" fill="none" stroke="url(#sg22)" stroke-width="4" stroke-linecap="round" stroke-dasharray="50" stroke-dashoffset="10"/>
                     <defs><linearGradient id="sg22" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#e67a2c"/><stop offset="1" stop-color="#1aa05a"/></linearGradient></defs>
-                    <circle cx="36" cy="12" r="2.5" fill="#0a6d5c"/>
+                    <circle cx="36" cy="12" r="2.5" fill="#1a649e"/>
                   </svg>
                   <span class="score-to">772</span>
                 </div>
@@ -951,7 +1366,7 @@
                     <path d="M4 24 A20 20 0 0 1 44 24" fill="none" stroke="#e8ece9" stroke-width="4" stroke-linecap="round"/>
                     <path d="M4 24 A20 20 0 0 1 44 24" fill="none" stroke="url(#sg23)" stroke-width="4" stroke-linecap="round" stroke-dasharray="50" stroke-dashoffset="10"/>
                     <defs><linearGradient id="sg23" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#e67a2c"/><stop offset="1" stop-color="#1aa05a"/></linearGradient></defs>
-                    <circle cx="36" cy="12" r="2.5" fill="#0a6d5c"/>
+                    <circle cx="36" cy="12" r="2.5" fill="#1a649e"/>
                   </svg>
                   <span class="score-to">710</span>
                 </div>
@@ -968,7 +1383,7 @@
                     <path d="M4 24 A20 20 0 0 1 44 24" fill="none" stroke="#e8ece9" stroke-width="4" stroke-linecap="round"/>
                     <path d="M4 24 A20 20 0 0 1 44 24" fill="none" stroke="url(#sg24)" stroke-width="4" stroke-linecap="round" stroke-dasharray="50" stroke-dashoffset="10"/>
                     <defs><linearGradient id="sg24" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#e67a2c"/><stop offset="1" stop-color="#1aa05a"/></linearGradient></defs>
-                    <circle cx="36" cy="12" r="2.5" fill="#0a6d5c"/>
+                    <circle cx="36" cy="12" r="2.5" fill="#1a649e"/>
                   </svg>
                   <span class="score-to">780</span>
                 </div>
@@ -985,7 +1400,7 @@
                     <path d="M4 24 A20 20 0 0 1 44 24" fill="none" stroke="#e8ece9" stroke-width="4" stroke-linecap="round"/>
                     <path d="M4 24 A20 20 0 0 1 44 24" fill="none" stroke="url(#sg25)" stroke-width="4" stroke-linecap="round" stroke-dasharray="50" stroke-dashoffset="10"/>
                     <defs><linearGradient id="sg25" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#e67a2c"/><stop offset="1" stop-color="#1aa05a"/></linearGradient></defs>
-                    <circle cx="36" cy="12" r="2.5" fill="#0a6d5c"/>
+                    <circle cx="36" cy="12" r="2.5" fill="#1a649e"/>
                   </svg>
                   <span class="score-to">745</span>
                 </div>
@@ -1163,6 +1578,87 @@
         </div>
       </section>
 
+      <section class="faq" id="faq" aria-labelledby="faq-title">
+        <div class="faq-inner">
+          <div class="section-head faq-head">
+            <p class="eyebrow">FAQ</p>
+            <h2 id="faq-title">Frequently asked questions</h2>
+          </div>
+
+          <div class="faq-list">
+            <article class="faq-item">
+              <h3>
+                <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a1" id="faq-q1">
+                  <span>What is a credit score and how much is a good credit score?</span>
+                  <span class="faq-toggle" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="faq-panel" id="faq-a1" role="region" aria-labelledby="faq-q1">
+                <div class="faq-panel-inner">
+                  <p>A credit score is a numerical rating that reflects your creditworthiness based on your financial history. It typically ranges from 300 to 900. A score above 750 is generally considered good, increasing your chances of loan approval and better interest rates from lenders.</p>
+                </div>
+              </div>
+            </article>
+
+            <article class="faq-item">
+              <h3>
+                <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a2" id="faq-q2">
+                  <span>Why is a good credit score important?</span>
+                  <span class="faq-toggle" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="faq-panel" id="faq-a2" role="region" aria-labelledby="faq-q2">
+                <div class="faq-panel-inner">
+                  <p>A good credit score is important because it increases your chances of loan approval, lowers interest rates, and improves access to financial products like credit cards and mortgages. It reflects your financial responsibility and can also help you secure better terms on insurance, rental agreements, and more.</p>
+                </div>
+              </div>
+            </article>
+
+            <article class="faq-item">
+              <h3>
+                <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a3" id="faq-q3">
+                  <span>How is my credit score calculated?</span>
+                  <span class="faq-toggle" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="faq-panel" id="faq-a3" role="region" aria-labelledby="faq-q3">
+                <div class="faq-panel-inner">
+                  <p>Your credit score is calculated based on five factors: payment history (35%), credit utilization (30%), length of credit history (15%), types of credit (10%), and new credit inquiries (10%). Timely payments and low credit usage have the biggest impact, while having a mix of credit types and a long credit history also help boost your score. Frequent new credit applications can lower your score.</p>
+                </div>
+              </div>
+            </article>
+
+            <article class="faq-item">
+              <h3>
+                <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a4" id="faq-q4">
+                  <span>Will I get a loan for sure, if my credit score goes above 750?</span>
+                  <span class="faq-toggle" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="faq-panel" id="faq-a4" role="region" aria-labelledby="faq-q4">
+                <div class="faq-panel-inner">
+                  <p>A credit score above 750 significantly boosts your chances of getting a loan, and almost guarantees loan approval. But lenders also consider your income, employment status, existing debt, and credit history. Factors like the type of loan and the lender’s internal criteria also play a role. So while a high score improves your eligibility, approval depends on these additional factors as well.</p>
+                </div>
+              </div>
+            </article>
+
+            <article class="faq-item">
+              <h3>
+                <button class="faq-trigger" type="button" aria-expanded="false" aria-controls="faq-a5" id="faq-q5">
+                  <span>What more can be done in the GoodScore app?</span>
+                  <span class="faq-toggle" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="faq-panel" id="faq-a5" role="region" aria-labelledby="faq-q5">
+                <div class="faq-panel-inner">
+                  <p>You can do electricity, water, internet and all other bill payments; and can also do Mobile Recharge with the GoodScore App. Very soon you’ll be able to scan and make UPI payments from the app. And there are exciting rewards &amp; cashbacks for every transaction &amp; bill payments.</p>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
       <!-- ========== CTA ========== -->
       <section class="cta" id="cta">
         <div class="cta-shell" data-cta-deck>
@@ -1318,12 +1814,139 @@
     </main>
 
     <footer class="footer">
-      <div class="footer-brand">
-        <span class="nav-mark"></span>
-        <strong>GoodScore</strong>
+      <div class="footer-grid">
+        <div class="footer-brand-col">
+          <a class="footer-logo" href="#top" aria-label="GoodScore home">
+            <img class="brand-logo" src="assets/logos/goodscore.svg" alt="GoodScore" width="131" height="23" />
+          </a>
+          <p class="footer-tagline">
+            Let Credit Expert help you increase your credit score
+          </p>
+          <div class="store-badges footer-stores" aria-label="Download GoodScore">
+            <a
+              class="store-badge"
+              href="https://play.google.com/store/apps/details?id=com.rupicard.score"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <svg viewBox="0 0 155 46" role="img" aria-label="Get it on Google Play">
+                <rect width="155" height="46" rx="8" fill="rgba(37,99,235,0.08)" stroke="rgba(37,99,235,0.2)"/>
+                <path fill="#34A853" d="M10.2 8.4c-.4.4-.6 1-.6 1.8v25.6c0 .8.2 1.4.6 1.8l.1.1 14.4-14.4v-.6L10.3 8.3l-.1.1z"/>
+                <path fill="#FBBC04" d="M32.5 30.7l-7.8-7.8v-.6l7.8-7.8.1.1 9.2 5.2c2.6 1.5 2.6 3.9 0 5.4l-9.3 5.5z"/>
+                <path fill="#EA4335" d="M32.6 30.6l-7.9-7.9-14.4 14.4c.6.6 1.5.7 2.5.1l19.8-11.3v-.1-.1-.1z"/>
+                <path fill="#4285F4" d="M32.6 15.1L12.8 3.8c-1-.6-1.9-.5-2.5.1l14.4 14.4 7.9-7.9.1-.1-.1-.1-.1-.1z"/>
+                <text x="48" y="17" fill="rgba(7,19,31,0.48)" font-family="Manrope, Arial, sans-serif" font-size="8" letter-spacing="0.4" font-weight="600">GET IT ON</text>
+                <text x="48" y="33" fill="rgba(7,19,31,0.78)" font-family="Manrope, Arial, sans-serif" font-size="15.5" font-weight="700">Google Play</text>
+              </svg>
+            </a>
+            <a
+              class="store-badge"
+              href="https://apps.apple.com/in/app/goodscore-credit-score-app/id6654923902"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <svg viewBox="0 0 148 46" role="img" aria-label="Download on the App Store">
+                <rect x="0.5" y="0.5" width="147" height="45" rx="8" fill="rgba(37,99,235,0.08)" stroke="rgba(37,99,235,0.2)"/>
+                <path fill="#1d4ed8" d="M29.4 23.4c0-3.3 2.7-4.9 2.8-5-1.5-2.2-3.9-2.5-4.7-2.5-2-.2-3.9 1.2-4.9 1.2s-2.6-1.2-4.2-1.1c-2.2.1-4.2 1.3-5.3 3.2-2.3 3.9-.6 9.7 1.6 12.9 1.1 1.5 2.4 3.3 4.1 3.2 1.6-.1 2.3-1.1 4.2-1.1s2.5 1.1 4.3 1c1.8-.1 2.9-1.6 4-3.1 1.2-1.8 1.7-3.5 1.8-3.6-.1 0-3.3-1.3-3.3-5.1zM25.6 12.6c.9-1.1 1.5-2.6 1.3-4.1-1.3.1-2.8.9-3.7 1.9-.8.9-1.5 2.4-1.3 3.8 1.4.1 2.8-.7 3.7-1.6z"/>
+                <text x="42" y="17" fill="rgba(7,19,31,0.48)" font-family="Manrope, Arial, sans-serif" font-size="8" font-weight="600">Download on the</text>
+                <text x="42" y="33" fill="rgba(7,19,31,0.78)" font-family="Manrope, Arial, sans-serif" font-size="15" font-weight="700">App Store</text>
+              </svg>
+            </a>
+          </div>
+
+          <div class="footer-marks">
+            <p class="footer-kicker">Powered by</p>
+            <div class="footer-logo-row">
+              <img class="is-sm" src="assets/trust-markers/cibil.png" alt="CIBIL" />
+              <img src="assets/trust-markers/bharatconnect.svg" alt="Bharat Connect" />
+              <img src="assets/trust-markers/experian.png" alt="Experian" />
+              <img class="is-sm" src="assets/trust-markers/crif.svg" alt="CRIF" />
+              <img class="is-sm" src="assets/trust-markers/upi.webp" alt="UPI" />
+            </div>
+          </div>
+          <div class="footer-marks">
+            <p class="footer-kicker">Secured with</p>
+            <div class="footer-logo-row">
+              <img src="assets/trust-markers/pci.avif" alt="PCI DSS Certified" />
+              <img src="assets/trust-markers/iso.jpg" alt="ISO certified" />
+              <img src="assets/trust-markers/soc.png" alt="AICPA SOC" />
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-links-col">
+          <div class="footer-nav-group">
+            <p class="footer-kicker">Social media</p>
+            <ul class="footer-social">
+              <li>
+                <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.54V9.84c0-2.5 1.49-3.89 3.78-3.89 1.09 0 2.24.2 2.24.2v2.47h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.44 2.91h-2.34V22c4.78-.76 8.44-4.92 8.44-9.94z"/>
+                  </svg>
+                  Facebook
+                </a>
+              </li>
+              <li>
+                <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M8 2h8a6 6 0 0 1 6 6v8a6 6 0 0 1-6 6H8a6 6 0 0 1-6-6V8a6 6 0 0 1 6-6zm4 5.2A4.8 4.8 0 1 0 16.8 12 4.8 4.8 0 0 0 12 7.2zm0 1.9A2.9 2.9 0 1 1 9.1 12 2.9 2.9 0 0 1 12 9.1zM17.45 6.1a1.15 1.15 0 1 0 1.15 1.15 1.15 1.15 0 0 0-1.15-1.15z"/>
+                  </svg>
+                  Instagram
+                </a>
+              </li>
+              <li>
+                <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M21.8 5.4c1.2.32 2.2 1.32 2.5 2.5.4 1.7.4 5.3.4 5.3s0 3.6-.4 5.3a3.2 3.2 0 0 1-2.5 2.5c-1.7.4-9.8.4-9.8.4s-8.1 0-9.8-.4a3.2 3.2 0 0 1-2.5-2.5C.3 16.8.3 13.2.3 13.2s0-3.6.4-5.3a3.2 3.2 0 0 1 2.5-2.5C4.9 5 12 5 12 5s8.1 0 9.8.4zM9.8 16.1V8.9l6.4 3.6-6.4 3.6z"/>
+                  </svg>
+                  YouTube
+                </a>
+              </li>
+              <li>
+                <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.35V9h3.41v1.56h.05c.47-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45zM22.23 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.46c.98 0 1.77-.77 1.77-1.73V1.73C24 .77 23.21 0 22.23 0z"/>
+                  </svg>
+                  LinkedIn
+                </a>
+              </li>
+            </ul>
+          </div>
+          <div class="footer-nav-group">
+            <p class="footer-kicker">Quick links</p>
+            <ul>
+              <li><a href="#">Terms and Conditions</a></li>
+              <li><a href="#">Privacy Policy</a></li>
+              <li><a href="#">Blog</a></li>
+              <li><a href="#">Grievance Redressal Policy</a></li>
+              <li><a href="#">Consent Withdrawal Policy</a></li>
+              <li><a href="#">Refund and Cancellation Policy</a></li>
+            </ul>
+          </div>
+          <div class="footer-nav-group">
+            <p class="footer-kicker">Contact us</p>
+            <ul class="footer-contact">
+              <li>
+                <a href="tel:+918065663363">+91-8065663363</a>
+              </li>
+              <li>
+                <a href="mailto:help@goodscore.app">help@goodscore.app</a>
+              </li>
+              <li>
+                <address>
+                  57/4, Vajram Esteva, 2nd Floor, Marathahalli-Sarjapur Outer
+                  Ring Road, ORR, Devarabisanahalli, Bengaluru, Karnataka 560103
+                </address>
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
-      <p>AI credit management for India · Powered by Experian &amp; CRIF</p>
-      <p class="fine">© 2026 Arthvit 1809 Tech Pvt. Ltd. · Made in India</p>
+
+      <div class="footer-bottom">
+        <p class="footer-made">Made with <span aria-hidden="true">♥</span> in India.</p>
+        <p class="fine">© 2026 Arthvit 1809 Tech Pvt. Ltd. · All Rights Reserved</p>
+      </div>
     </footer>
 
     <script>
@@ -1461,6 +2084,6 @@
       })();
     </script>
     <script src="js/marquee.js?v=reviews1"></script>
-    <script src="js/main.js?v=story2"></script>
+    <script src="js/main.js?v=agent218"></script>
   </body>
 </html>

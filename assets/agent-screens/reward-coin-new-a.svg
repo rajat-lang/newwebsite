@@ -1,0 +1,20 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="naFace" cx="0.32" cy="0.28" r="0.85">
+      <stop offset="0" stop-color="#FFF6C8"/>
+      <stop offset="0.4" stop-color="#F3C63A"/>
+      <stop offset="1" stop-color="#C48412"/>
+    </radialGradient>
+    <linearGradient id="naRim" x1="12" y1="8" x2="52" y2="56">
+      <stop stop-color="#FFE9A0"/>
+      <stop offset="0.5" stop-color="#D9A21A"/>
+      <stop offset="1" stop-color="#8B5408"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="33" cy="35.5" rx="21" ry="21" fill="#7A4A08" opacity="0.28"/>
+  <circle cx="32" cy="32" r="21" fill="url(#naRim)"/>
+  <circle cx="32" cy="32" r="16.4" fill="url(#naFace)"/>
+  <circle cx="32" cy="32" r="16.4" fill="none" stroke="#FFF2B0" stroke-opacity="0.45" stroke-width="1.1"/>
+  <path d="M25 22.5h14M24.5 27.5h15.5M39.2 22.5c.4 6.2-3.4 12.4-10.6 16.2" stroke="#8A4E0A" stroke-width="2.3" stroke-linecap="round"/>
+  <path d="M22 22c4.2-4.6 12.4-6.2 18-3" stroke="#fff" stroke-opacity="0.38" stroke-width="1.7" stroke-linecap="round"/>
+</svg>

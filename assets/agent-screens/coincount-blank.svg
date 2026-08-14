@@ -1,0 +1,10 @@
+<svg width="65" height="33" viewBox="0 0 65 33" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="0.5" y="0.5" width="64" height="32" rx="16" fill="#FFCE09" fill-opacity="0.1"/>
+  <rect x="0.5" y="0.5" width="64" height="32" rx="16" stroke="url(#countBorder)"/>
+  <defs>
+    <linearGradient id="countBorder" x1="0.5" y1="0.5" x2="66.7951" y2="26.6906" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFCE09"/>
+      <stop offset="1" stop-color="#FFCE09" stop-opacity="0.2"/>
+    </linearGradient>
+  </defs>
+</svg>

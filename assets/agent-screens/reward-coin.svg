@@ -1,0 +1,12 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <ellipse cx="34.5" cy="36" rx="24" ry="24" fill="#E28A1A"/>
+  <circle cx="30" cy="30" r="24" fill="url(#coinFace)"/>
+  <path d="M30 14.5L33.2 25.3L44.5 25.5L35.4 32.4L38.8 43.2L30 36.6L21.2 43.2L24.6 32.4L15.5 25.5L26.8 25.3L30 14.5Z" fill="#D47812"/>
+  <defs>
+    <linearGradient id="coinFace" x1="14" y1="10" x2="48" y2="50" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFE56A"/>
+      <stop offset="0.45" stop-color="#F5C842"/>
+      <stop offset="1" stop-color="#E8A820"/>
+    </linearGradient>
+  </defs>
+</svg>

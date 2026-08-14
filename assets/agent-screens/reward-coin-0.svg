@@ -1,0 +1,25 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="rim0" x1="12" y1="8" x2="54" y2="58" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFE9A0"/>
+      <stop offset="0.45" stop-color="#E8B423"/>
+      <stop offset="1" stop-color="#A86B08"/>
+    </linearGradient>
+    <radialGradient id="face0" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(24 22) rotate(55) scale(34)">
+      <stop stop-color="#FFF3B8"/>
+      <stop offset="0.35" stop-color="#FFD54A"/>
+      <stop offset="0.78" stop-color="#E6A918"/>
+      <stop offset="1" stop-color="#C4840C"/>
+    </radialGradient>
+    <linearGradient id="star0" x1="24" y1="18" x2="40" y2="46" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#C56A0C"/>
+      <stop offset="1" stop-color="#8B4508"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="34" cy="36.5" rx="24" ry="24" fill="#B8730A" opacity="0.55"/>
+  <circle cx="32" cy="32" r="24" fill="url(#rim0)"/>
+  <circle cx="32" cy="32" r="19.5" fill="url(#face0)"/>
+  <circle cx="32" cy="32" r="19.5" fill="none" stroke="#F7E08A" stroke-opacity="0.45" stroke-width="1.2"/>
+  <path d="M32 17.5L35.05 27.35L45.5 27.55L37.15 33.7L40.35 43.5L32 37.55L23.65 43.5L26.85 33.7L18.5 27.55L28.95 27.35L32 17.5Z" fill="url(#star0)"/>
+  <path d="M22 23c4-5 12-7 18-4" stroke="#fff" stroke-opacity="0.35" stroke-width="2" stroke-linecap="round"/>
+</svg>
