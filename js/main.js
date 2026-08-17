@@ -646,8 +646,10 @@ let payCoinsDone = false;
 let payCoinsReleased = false;
 let payCoinsHoldTimer = 0;
 let payShimmerTimer = 0;
+let payCoinsScrollYAtStart = 0;
+let payCoinsExitQueued = false;
 const PAY_SHIMMER_MS = 1050;
-const PAY_PILL_LEAD_MS = 320;
+const PAY_PILL_LEAD_MS = 0;
 const PAY_REWARD_COIN_SRCS = [
   "assets/agent-screens/reward-coin-new-a.svg",
   "assets/agent-screens/reward-coin-new-b.svg",
@@ -814,6 +816,8 @@ function stopPayRewardFx() {
   payRewardFxFired = false;
   payCoinsPlaying = false;
   payCoinsReleased = false;
+  payCoinsScrollYAtStart = 0;
+  payCoinsExitQueued = false;
   if (payCoinsHoldTimer) {
     clearTimeout(payCoinsHoldTimer);
     payCoinsHoldTimer = 0;
@@ -846,14 +850,45 @@ function payCoinsHoldScrollY() {
   return agentPinScrollY() + total * AGENT_REWARDS_END;
 }
 
+/* During the finale, park at the rewards beat until coins + numbers finish */
 function clampPayCoinsScroll() {
   if (programmaticNav || !payCoinsPlaying || payCoinsDone) return false;
   const hold = payCoinsHoldScrollY();
   if (window.scrollY > hold + 0.5) {
+    payCoinsExitQueued = true;
     window.scrollTo(0, hold);
     return true;
   }
   return false;
+}
+
+function advanceToLightAfterRewards() {
+  const loans = document.getElementById("loans");
+  if (loans) {
+    scrollPageToY(0, { smooth: true, resolveEl: loans });
+    return;
+  }
+  if (!agentScene) return;
+  const total = Math.max(agentScene.offsetHeight - window.innerHeight, 1);
+  scrollPageToY(agentPinScrollY() + total + 24, { smooth: true });
+}
+
+function finishPayRewardCoins() {
+  if (!payCoinsPlaying && payCoinsDone) return;
+  payCoinsPlaying = false;
+  payCoinsDone = true;
+  payCoinsHoldTimer = 0;
+  /* Coins have finished their flight — clear them so they fully disappear */
+  agentPayRewardFly?.querySelectorAll(".pay-fly-coin").forEach((el) => el.remove());
+  /* Lock final +N totals in case a bump timer was mid-flight */
+  agentPayPoints.forEach((_, i) => setPayPoints(i, PAY_POINTS_TOTALS[i] ?? 0));
+  placePayPointPills();
+
+  /* After the finale, continue into the light section */
+  requestAnimationFrame(() => {
+    advanceToLightAfterRewards();
+    payCoinsExitQueued = false;
+  });
 }
 
 function revealPayRewardsStep() {
@@ -964,7 +999,7 @@ function spawnPayRewardCoins() {
       const startY = launchY + (Math.random() - 0.5) * 4;
       const size = 0.88 + Math.random() * 0.25;
       const delay =
-        PAY_PILL_LEAD_MS + cardIndex * 110 + i * 62 + Math.random() * 35;
+        PAY_PILL_LEAD_MS + cardIndex * 45 + i * 48 + Math.random() * 20;
       const dur = 680 + Math.random() * 220;
       maxEnd = Math.max(maxEnd, delay + dur);
 
@@ -1016,10 +1051,9 @@ function spawnPayRewardCoins() {
   });
 
   payCoinsHoldTimer = window.setTimeout(() => {
-    payCoinsPlaying = false;
-    payCoinsDone = true;
     payCoinsHoldTimer = 0;
-  }, Math.ceil(maxEnd + PAY_SHIMMER_MS * 0.1 + 220));
+    finishPayRewardCoins();
+  }, Math.ceil(maxEnd + 220));
 }
 
 function firePayRewardFx() {
@@ -1036,6 +1070,7 @@ function firePayRewardFx() {
       setPayPoints(i, PAY_POINTS_TOTALS[i] ?? 0)
     );
     revealPayRewardsStep();
+    requestAnimationFrame(() => advanceToLightAfterRewards());
     return;
   }
 
@@ -1044,16 +1079,27 @@ function firePayRewardFx() {
   payCoinsPlaying = true;
   payCoinsDone = false;
   payCoinsReleased = false;
+  payCoinsScrollYAtStart = window.scrollY;
+  payCoinsExitQueued = window.scrollY > payCoinsHoldScrollY() - 2;
   agentPayCardHost?.classList.add("is-shimmer");
   if (agentPayMiddleCard) {
     agentPayMiddleCard.src = PAY_MIDDLE_CARD_SHIMMER_SRC;
   }
 
-  payShimmerTimer = window.setTimeout(() => {
+  /* Cards are already in final fan seats — shoot coins on the next frame */
+  if (payShimmerTimer) {
+    clearTimeout(payShimmerTimer);
     payShimmerTimer = 0;
-    if (!payRewardFxFired) return;
+  }
+  requestAnimationFrame(() => {
+    if (!payRewardFxFired || payCoinsDone) return;
     spawnPayRewardCoins();
-  }, PAY_SHIMMER_MS);
+    /* Park on the finale while the burst plays */
+    const hold = payCoinsHoldScrollY();
+    if (Math.abs(window.scrollY - hold) > 2) {
+      window.scrollTo(0, hold);
+    }
+  });
 }
 
 /*
@@ -1071,6 +1117,10 @@ let programmaticNav = false;
 let programmaticNavTimer = 0;
 let programmaticNavToken = 0;
 const AGENT_SOLO_SETTLE_MS = 320;
+
+function isMobileViewport() {
+  return window.matchMedia?.("(max-width: 719px)")?.matches === true;
+}
 /*
  * Chapter progress map (fraction of scene height):
  *  0 → 0.09     grow + copy + solo hold (grow finishes ~0.032)
@@ -1086,9 +1136,9 @@ const AGENT_SOLO_SETTLE_MS = 320;
  *  0.80 → 0.825 phone flips to score improves (fast)
  *  0.825 → 0.89  score hold
  *  0.89 → 0.925  pay-with-us screen + cards rise
- *  0.925 → 0.935 pay hold
- *  0.935 → 0.99  cards fan + coins (held until coins finish)
- *  0.99 → 1.00   end → light section
+ *  0.925 → 0.93   pay hold
+ *  0.93 → 0.97    cards fan + coins (non-blocking; scroll stays free)
+ *  0.97 → 1.00    end → light section
  */
 const AGENT_SOLO_MAX_P = 0.09;
 const AGENT_STRIP_START = 0.125;
@@ -1104,8 +1154,8 @@ const AGENT_SCORE_START = 0.8;
 const AGENT_SCORE_END = 0.825;
 const AGENT_PAY_START = 0.89;
 const AGENT_PAY_END = 0.925;
-const AGENT_REWARDS_START = 0.935;
-const AGENT_REWARDS_END = 0.99;
+const AGENT_REWARDS_START = 0.93;
+const AGENT_REWARDS_END = 0.97;
 
 /* Card order: left → top → enquiries → utilisation */
 const RESOLVE_ORDER = [0, 1, 3, 2];
@@ -1294,6 +1344,11 @@ function scrollToNavTarget(hash, { smooth = true } = {}) {
 /* Hard-land on the finished agent-only screen (never past into cards) */
 function lockToAgentSolo() {
   if (!agentScene || agentLocking || programmaticNav) return;
+  /* On mobile, hard clamps kill momentum and make the page feel stuck */
+  if (isMobileViewport()) {
+    unlockAgentCards();
+    return;
+  }
   const soloMaxY = agentSoloMaxScrollY();
   const y = window.scrollY;
   const wasParked = agentSoloParked;
@@ -1342,15 +1397,54 @@ document.querySelectorAll("[data-goto-agent-solo]").forEach((el) => {
 document.querySelectorAll(".nav-brand[href='#top'], .footer-logo[href='#top']").forEach((el) => {
   el.addEventListener("click", (e) => {
     e.preventDefault();
+    closeNavMenu();
     scrollToNavTarget("#top", { smooth: true });
   });
 });
+
+const navEl = document.querySelector(".nav");
+const navToggle = document.querySelector("[data-nav-toggle]");
+
+function setNavMenuOpen(open) {
+  if (!navEl || !navToggle) return;
+  navEl.classList.toggle("is-menu-open", open);
+  navToggle.setAttribute("aria-expanded", open ? "true" : "false");
+  navToggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+}
+
+function closeNavMenu() {
+  setNavMenuOpen(false);
+}
+
+navToggle?.addEventListener("click", (e) => {
+  e.stopPropagation();
+  setNavMenuOpen(!navEl?.classList.contains("is-menu-open"));
+});
+
+document.addEventListener("click", (e) => {
+  if (!navEl?.classList.contains("is-menu-open")) return;
+  if (navEl.contains(e.target)) return;
+  closeNavMenu();
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closeNavMenu();
+});
+
+window.addEventListener(
+  "resize",
+  () => {
+    if (window.matchMedia("(min-width: 720px)").matches) closeNavMenu();
+  },
+  { passive: true }
+);
 
 document.querySelectorAll(".nav-links a[href^='#']").forEach((el) => {
   el.addEventListener("click", (e) => {
     const href = el.getAttribute("href");
     if (!href || href === "#") return;
     e.preventDefault();
+    closeNavMenu();
     scrollToNavTarget(href, { smooth: true });
   });
 });
@@ -1457,20 +1551,31 @@ function paintAgentIntro(p) {
   /*
    * White: agent rises bottom → centre (never past it).
    * At centre (pin) → dark dissolves on; grow starts from that seat.
-   * End of chapter → unlatch immediately so lenders aren’t delayed.
+   * End of chapter → unlatch after the coin finale finishes, then light.
    */
-  const coinsBlocking = payCoinsPlaying && !payCoinsDone;
+  const pastLastBeat = p >= AGENT_REWARDS_END;
+  const coinsFinaleActive = payCoinsPlaying || (payRewardFxFired && !payCoinsDone);
+  const mobileExit =
+    isMobileViewport() && pastLastBeat && payCoinsDone && !payCoinsPlaying;
   const stillCovering = rect.bottom > vh * 0.5;
   const pinned = rect.top <= 1;
-  const chapterDone = !coinsBlocking && rect.bottom <= vh * 1.02;
-  if (coinsBlocking || (pinned && stillCovering && !chapterDone)) {
+  const chapterDone =
+    (!coinsFinaleActive && rect.bottom <= vh * 1.02) || mobileExit;
+  if (pinned && stillCovering && !chapterDone) {
     agentDarkLatched = true;
-  } else if (rect.top > 24 || rect.bottom < vh * 0.88 || chapterDone) {
+  } else if (
+    !coinsFinaleActive &&
+    (rect.top > 24 || rect.bottom < vh * 0.88 || chapterDone)
+  ) {
     agentDarkLatched = false;
   }
   const shouldDark = agentDarkLatched;
   const exitPeek =
-    !shouldDark && rect.top <= 24 && rect.bottom > vh * 0.12;
+    !shouldDark &&
+    !mobileExit &&
+    !coinsFinaleActive &&
+    rect.top <= 24 &&
+    rect.bottom > vh * 0.12;
 
   const rise = shouldDark
     ? 1
@@ -1483,6 +1588,7 @@ function paintAgentIntro(p) {
 
   agentSticky.classList.toggle("is-dark", shouldDark);
   agentSticky.classList.toggle("is-peeking", shouldPeek);
+  agentSticky.classList.toggle("is-chapter-exit", mobileExit && !shouldDark);
   agentSticky.classList.remove("is-exiting");
   agentVeil?.classList.toggle("is-on", shouldDark);
   document.documentElement.classList.toggle("story-dark", shouldDark);
@@ -1924,13 +2030,13 @@ function paintAgentIntro(p) {
     }
   }
 
-  /* Coins once the fan is clearly on — hold scroll until they finish */
-  if (payRewards >= 0.55 && shouldDark && isHowto && !programmaticNav) {
+  /* Coins the instant the fan seats — park until the burst finishes, then light */
+  if (payRewards >= 0.92 && shouldDark && isHowto && !programmaticNav) {
     if (!payRewardFxFired) firePayRewardFx();
   } else if (
     !programmaticNav &&
     !payCoinsPlaying &&
-    (payRewards < 0.28 || (!shouldDark && p < AGENT_REWARDS_START))
+    (payRewards < 0.55 || (!shouldDark && p < AGENT_REWARDS_START))
   ) {
     if (payRewardFxFired || payCoinsDone) {
       stopPayRewardFx();
@@ -2009,9 +2115,14 @@ function onAgentScroll() {
   /*
    * From first fold: never past the finished agent-only screen.
    * A little further scroll after settle unlocks cards.
+   * Mobile skips the clamp so touch momentum stays intact.
    */
   if (!programmaticNav) {
-    if (!agentCardsUnlocked && y > soloMaxY + 4 && y < pinY + sceneRun * 0.9) {
+    if (isMobileViewport()) {
+      if (!agentCardsUnlocked && y > soloMaxY + 4) {
+        unlockAgentCards();
+      }
+    } else if (!agentCardsUnlocked && y > soloMaxY + 4 && y < pinY + sceneRun * 0.9) {
       if (agentSoloSettled()) {
         unlockAgentCards();
       } else {
@@ -2029,17 +2140,18 @@ function onAgentScroll() {
 }
 
 function onAgentWheel(e) {
-  if (!agentScene || programmaticNav) return;
+  if (!agentScene || programmaticNav || isMobileViewport()) return;
 
   const y = window.scrollY;
   const pinY = agentPinScrollY();
   const soloMaxY = agentSoloMaxScrollY();
   const goingDown = e.deltaY > 0;
 
-  /* Keep chapter locked while reward coins are still falling */
+  /* Park through the coin finale; continue only after it finishes */
   if (payCoinsPlaying && !payCoinsDone && goingDown) {
     const hold = payCoinsHoldScrollY();
     if (y + e.deltaY > hold) {
+      payCoinsExitQueued = true;
       e.preventDefault();
       window.scrollTo(0, hold);
       return;
@@ -2089,6 +2201,8 @@ function onAgentTouchStart(e) {
 }
 
 function onAgentTouchMove(e) {
+  /* Never hijack touch scrolling on mobile — clampPayCoinsScroll parks via scroll */
+  if (isMobileViewport()) return;
   if (!agentScene || !e.touches?.[0] || programmaticNav) return;
 
   const y = window.scrollY;
@@ -2099,6 +2213,7 @@ function onAgentTouchMove(e) {
   if (payCoinsPlaying && !payCoinsDone && dy > 8) {
     const hold = payCoinsHoldScrollY();
     if (y + dy > hold) {
+      payCoinsExitQueued = true;
       e.preventDefault();
       window.scrollTo(0, hold);
       return;
@@ -2135,7 +2250,10 @@ function onAgentTouchMove(e) {
 
 window.addEventListener("wheel", onAgentWheel, { passive: false });
 window.addEventListener("touchstart", onAgentTouchStart, { passive: true });
-window.addEventListener("touchmove", onAgentTouchMove, { passive: false });
+/* Non-passive touchmove only on desktop — it kills mobile momentum site-wide */
+if (!isMobileViewport()) {
+  window.addEventListener("touchmove", onAgentTouchMove, { passive: false });
+}
 window.addEventListener("resize", refreshAgentPinY, { passive: true });
 refreshAgentPinY();
 

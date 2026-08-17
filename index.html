@@ -14,7 +14,7 @@
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="css/styles.css?v=agent261" />
+    <link rel="stylesheet" href="css/styles.css?v=agent276" />
   </head>
   <body>
     <div class="noise" aria-hidden="true"></div>
@@ -25,7 +25,17 @@
       <a class="nav-brand" href="#top" aria-label="GoodScore home">
         <img class="brand-logo" src="assets/logos/goodscore.svg" alt="GoodScore" width="131" height="23" />
       </a>
-      <nav class="nav-links" aria-label="Primary">
+      <button
+        class="nav-menu-btn"
+        type="button"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="primary-nav"
+        data-nav-toggle
+      >
+        <span class="nav-menu-bars" aria-hidden="true"></span>
+      </button>
+      <nav class="nav-links" id="primary-nav" aria-label="Primary">
         <a href="#how-it-works" data-goto-agent-solo>How it works</a>
         <a href="#loans">Loans</a>
         <a href="#lenders">Network</a>
@@ -2361,6 +2371,6 @@
       })();
     </script>
     <script src="js/marquee.js?v=reviews1"></script>
-    <script src="js/main.js?v=agent244"></script>
+    <script src="js/main.js?v=agent250"></script>
   </body>
 </html>
