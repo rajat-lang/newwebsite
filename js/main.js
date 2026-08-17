@@ -16,6 +16,7 @@ let pillarTimer;
 /* ---------- Nav scroll state ---------- */
 function onScrollNav() {
   nav?.classList.toggle("is-scrolled", window.scrollY > 12);
+  updateImpactScrollHint();
 }
 window.addEventListener("scroll", onScrollNav, { passive: true });
 onScrollNav();
@@ -235,6 +236,151 @@ document.querySelectorAll("[data-cta-mode]").forEach((btn) => {
 
 document.querySelector("[data-cta-unflip]")?.addEventListener("click", unflipCta);
 
+/* ---------- Expand flipped AI card into modal ---------- */
+(function initAiExpand() {
+  const overlay = document.querySelector("[data-ai-expand]");
+  const dialog = document.querySelector("[data-ai-expand-dialog]");
+  const slot = document.querySelector("[data-ai-expand-slot]");
+  if (!overlay || !dialog || !slot) return;
+
+  let sourceHost = null;
+  let sourceFace = null;
+  let closeTimer = 0;
+
+  function prefersReducedMotion() {
+    return window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+  }
+
+  function setOriginFromRect(rect) {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const finalW = Math.min(1120, vw - 24);
+    const finalH = Math.min(900, vh * 0.92);
+    const finalLeft = (vw - finalW) / 2;
+    const finalTop = (vh - finalH) / 2;
+    const ox = rect.left + rect.width / 2 - (finalLeft + finalW / 2);
+    const oy = rect.top + rect.height / 2 - (finalTop + finalH / 2);
+    const scale = Math.max(0.72, Math.min(rect.width / finalW, 0.96));
+    dialog.style.setProperty("--expand-ox", `${ox.toFixed(1)}px`);
+    dialog.style.setProperty("--expand-oy", `${oy.toFixed(1)}px`);
+    dialog.style.setProperty("--expand-scale", String(scale.toFixed(3)));
+  }
+
+  function openExpand(btn) {
+    if (sourceHost) return;
+    const face = btn.closest(".ai-deck-back, .cta-back");
+    const host = face?.querySelector("[data-connect-host]");
+    if (!face || !host) return;
+
+    window.clearTimeout(closeTimer);
+    sourceHost = host;
+    sourceFace = face;
+    const rect = face.getBoundingClientRect();
+    setOriginFromRect(rect);
+
+    slot.appendChild(host);
+    face.classList.add("is-content-expanded");
+    const note = face.querySelector("[data-expanded-note]");
+    if (note) note.hidden = false;
+
+    overlay.hidden = false;
+    overlay.setAttribute("aria-hidden", "false");
+    document.body.classList.add("ai-expand-open");
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => overlay.classList.add("is-open"));
+    });
+  }
+
+  function closeExpand() {
+    if (!sourceHost || !sourceFace) {
+      overlay.classList.remove("is-open");
+      overlay.hidden = true;
+      document.body.classList.remove("ai-expand-open");
+      return;
+    }
+
+    const restore = () => {
+      sourceFace.appendChild(sourceHost);
+      sourceFace.classList.remove("is-content-expanded");
+      const note = sourceFace.querySelector("[data-expanded-note]");
+      if (note) note.hidden = true;
+      sourceHost = null;
+      sourceFace = null;
+      overlay.hidden = true;
+      document.body.classList.remove("ai-expand-open");
+      dialog.style.removeProperty("--expand-ox");
+      dialog.style.removeProperty("--expand-oy");
+      dialog.style.removeProperty("--expand-scale");
+    };
+
+    overlay.classList.remove("is-open");
+    overlay.setAttribute("aria-hidden", "true");
+    if (prefersReducedMotion()) {
+      restore();
+      return;
+    }
+    window.clearTimeout(closeTimer);
+    closeTimer = window.setTimeout(restore, 480);
+  }
+
+  document.querySelectorAll("[data-deck-expand]").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      openExpand(btn);
+    });
+  });
+
+  overlay.querySelectorAll("[data-ai-expand-close]").forEach((el) => {
+    el.addEventListener("click", (e) => {
+      e.preventDefault();
+      closeExpand();
+    });
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !overlay.hidden) {
+      e.stopPropagation();
+      closeExpand();
+    }
+  });
+
+  // Keep content on the card if user unflips while expanded
+  const wrapUnflip = (fn) => () => {
+    if (sourceHost && sourceFace) {
+      closeExpand();
+      window.setTimeout(fn, prefersReducedMotion() ? 0 : 500);
+      return;
+    }
+    fn();
+  };
+
+  const unflipBtn = document.querySelector("[data-deck-unflip]");
+  const ctaUnflipBtn = document.querySelector("[data-cta-unflip]");
+  if (unflipBtn) {
+    unflipBtn.addEventListener(
+      "click",
+      (e) => {
+        if (!sourceHost) return;
+        e.stopImmediatePropagation();
+        wrapUnflip(unflipDeck)();
+      },
+      true
+    );
+  }
+  if (ctaUnflipBtn) {
+    ctaUnflipBtn.addEventListener(
+      "click",
+      (e) => {
+        if (!sourceHost) return;
+        e.stopImmediatePropagation();
+        wrapUnflip(unflipCta)();
+      },
+      true
+    );
+  }
+})();
+
 const CALL_LINES = [
   "Connected · negotiating HDFC overdue ₹48,200",
   "Desk offered −42% settlement if paid this week",
@@ -376,7 +522,7 @@ function startSession(mode, root) {
 document.querySelectorAll("[data-start-session]").forEach((btn) => {
   btn.addEventListener("click", () => {
     const root =
-      btn.closest("[data-deck], [data-cta-deck]") || document;
+      btn.closest("[data-deck], [data-cta-deck], [data-ai-expand]") || document;
     startSession(btn.dataset.startSession, root);
   });
 });
@@ -701,7 +847,7 @@ function payCoinsHoldScrollY() {
 }
 
 function clampPayCoinsScroll() {
-  if (!payCoinsPlaying || payCoinsDone) return false;
+  if (programmaticNav || !payCoinsPlaying || payCoinsDone) return false;
   const hold = payCoinsHoldScrollY();
   if (window.scrollY > hold + 0.5) {
     window.scrollTo(0, hold);
@@ -715,6 +861,41 @@ function revealPayRewardsStep() {
   paintAgentIntro(agentProgress());
 }
 
+/* Top corners of each card graphic inside the 383×723 pay layers */
+const PAY_CARD_CORNER_ORIGINS = [
+  { x: 51.44 / 383, y: 210.44 / 723 }, // orange — top-left
+  { x: 331 / 383, y: 285.5 / 723 }, // blue — top-right
+  { x: 331 / 383, y: 362.2 / 723 }, // pink — top-right
+];
+
+function placePayPointPills() {
+  if (!agentPayRewardFly || !agentPayRewardFx?.classList.contains("is-on")) {
+    return;
+  }
+  const flyRect = agentPayRewardFly.getBoundingClientRect();
+  if (flyRect.width < 8 || flyRect.height < 8) return;
+
+  agentPayCards.forEach((card, cardIndex) => {
+    if (!card) return;
+    /* Middle card fans via the host wrapper */
+    const layer =
+      cardIndex === 1 && agentPayCardHost ? agentPayCardHost : card;
+    const cardRect = layer.getBoundingClientRect();
+    const origin = PAY_CARD_CORNER_ORIGINS[cardIndex];
+    if (!origin || cardRect.width < 8) return;
+
+    const sourceX = cardRect.left + cardRect.width * origin.x;
+    const sourceY = cardRect.top + cardRect.height * origin.y;
+    const ox = ((sourceX - flyRect.left) / flyRect.width) * 100;
+    const oy = ((sourceY - flyRect.top) / flyRect.height) * 100;
+    const pointsEl = agentPayPoints[cardIndex];
+    if (!pointsEl) return;
+    pointsEl.style.left = `${ox.toFixed(2)}%`;
+    /* Sit just above the corner — small gap so the pill doesn’t kiss the card */
+    pointsEl.style.top = `${(oy - 1.2).toFixed(2)}%`;
+  });
+}
+
 function spawnPayRewardCoins() {
   if (!agentPayRewardFly) return;
   agentPayCardHost?.classList.add("is-emit");
@@ -723,18 +904,13 @@ function spawnPayRewardCoins() {
   payPointsValues = [0, 0, 0];
   /* Copy swaps the instant the +N pills appear above the cards. */
   revealPayRewardsStep();
+  placePayPointPills();
 
   const flyRect = agentPayRewardFly.getBoundingClientRect();
   const phoneH = agentPay?.clientHeight || 520;
   const risePx = Math.round(phoneH * -0.2);
   const coinN = PAY_REWARD_COIN_COUNT;
   let maxEnd = 0;
-  /* Exposed top corners of orange, blue and pink cards. */
-  const cardOrigins = [
-    { x: 51 / 383, y: 210 / 723 },
-    { x: 331 / 383, y: 285 / 723 },
-    { x: 331 / 383, y: 362 / 723 },
-  ];
   const srcs = PAY_REWARD_COIN_SRCS.slice();
   for (let s = srcs.length - 1; s > 0; s -= 1) {
     const j = Math.floor(Math.random() * (s + 1));
@@ -745,8 +921,10 @@ function spawnPayRewardCoins() {
 
   agentPayCards.forEach((card, cardIndex) => {
     if (!card || !flyRect.width || !flyRect.height) return;
-    const cardRect = card.getBoundingClientRect();
-    const origin = cardOrigins[cardIndex];
+    const layer =
+      cardIndex === 1 && agentPayCardHost ? agentPayCardHost : card;
+    const cardRect = layer.getBoundingClientRect();
+    const origin = PAY_CARD_CORNER_ORIGINS[cardIndex];
     const sourceX = cardRect.left + cardRect.width * origin.x;
     const sourceY = cardRect.top + cardRect.height * origin.y;
     const ox = ((sourceX - flyRect.left) / flyRect.width) * 100;
@@ -755,8 +933,7 @@ function spawnPayRewardCoins() {
     if (pointsEl) {
       setPayPoints(cardIndex, 0);
       pointsEl.style.left = `${ox.toFixed(2)}%`;
-      /* Counter sits immediately above the exposed card corner. */
-      pointsEl.style.top = `${Math.max(oy - 1.6, 4).toFixed(2)}%`;
+      pointsEl.style.top = `${(oy - 1.2).toFixed(2)}%`;
     }
     const total = PAY_POINTS_TOTALS[cardIndex] ?? 0;
     const step = Math.round(total / coinN);
@@ -890,6 +1067,9 @@ let agentTouchStartY = 0;
 let agentCachedPinY = 0;
 let agentLocking = false;
 let agentParkedAt = 0;
+let programmaticNav = false;
+let programmaticNavTimer = 0;
+let programmaticNavToken = 0;
 const AGENT_SOLO_SETTLE_MS = 320;
 /*
  * Chapter progress map (fraction of scene height):
@@ -983,9 +1163,137 @@ function agentSoloMaxScrollY() {
   return agentPinScrollY() + total * AGENT_SOLO_MAX_P;
 }
 
+function beginProgrammaticNav(ms = 8000) {
+  programmaticNav = true;
+  document.documentElement.classList.add("is-nav-scrolling");
+  window.clearTimeout(programmaticNavTimer);
+  /* Failsafe only — normal unlock is endProgrammaticNav() when the anim finishes */
+  programmaticNavTimer = window.setTimeout(endProgrammaticNav, ms);
+}
+
+function endProgrammaticNav() {
+  window.clearTimeout(programmaticNavTimer);
+  programmaticNavTimer = 0;
+  programmaticNav = false;
+  document.documentElement.classList.remove("is-nav-scrolling");
+}
+
+function navOffset() {
+  const navEl = document.querySelector(".nav");
+  return (navEl?.offsetHeight || 72) + 12;
+}
+
+function pageYOf(el) {
+  if (!el) return 0;
+  return el.getBoundingClientRect().top + window.scrollY;
+}
+
+function prefersReducedMotion() {
+  return window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+}
+
+function easeInOutCubic(t) {
+  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+}
+
+/* Distance-based scroll so nav jumps still fly through every section */
+function scrollPageToY(targetY, { smooth = true, onDone, resolveEl = null } = {}) {
+  const token = ++programmaticNavToken;
+  const resolveY = () => {
+    if (resolveEl?.isConnected) {
+      return Math.max(0, Math.round(pageYOf(resolveEl) - navOffset()));
+    }
+    return Math.max(0, Math.round(targetY));
+  };
+
+  let y = resolveY();
+  const startY = window.scrollY;
+  const dist = Math.abs(y - startY);
+
+  if (!smooth || dist < 2 || prefersReducedMotion()) {
+    beginProgrammaticNav(400);
+    window.scrollTo(0, resolveY());
+    if (token === programmaticNavToken) {
+      onDone?.();
+      endProgrammaticNav();
+    }
+    return;
+  }
+
+  /*
+   * Fast fly-through: still visits every section, but at a quick pace.
+   * ~4200 px/s with short min/max so long chapters don't linger.
+   * Keep programmaticNav until RAF finishes — a short timeout used to
+   * abort mid-agent-chapter when paint lagged behind wall-clock duration.
+   */
+  const duration = Math.min(1600, Math.max(280, dist / 4.2));
+  beginProgrammaticNav(Math.max(duration + 4000, 6000));
+  const t0 = performance.now();
+
+  const frame = (now) => {
+    if (token !== programmaticNavToken) return;
+    const t = Math.min(1, (now - t0) / duration);
+    if (t >= 1) {
+      window.scrollTo(0, resolveY());
+      if (token === programmaticNavToken) {
+        onDone?.();
+        endProgrammaticNav();
+      }
+      return;
+    }
+    const next = startY + (y - startY) * easeInOutCubic(t);
+    window.scrollTo(0, next);
+    requestAnimationFrame(frame);
+  };
+  requestAnimationFrame(frame);
+}
+
+function scrollToNavTarget(hash, { smooth = true } = {}) {
+  const id = String(hash || "").replace(/^#/, "");
+  if (!id || id === "top") {
+    scrollPageToY(0, {
+      smooth,
+      onDone: () => {
+        agentSoloParked = false;
+        agentCardsUnlocked = false;
+        agentParkedAt = 0;
+        refreshAgentPinY();
+      },
+    });
+    if (history.replaceState) history.replaceState(null, "", "#top");
+    return;
+  }
+
+  if (id === "how-it-works") {
+    goToAgentSolo(smooth);
+    if (history.replaceState) history.replaceState(null, "", "#how-it-works");
+    return;
+  }
+
+  const el = document.getElementById(id);
+  if (!el) return;
+
+  /* Jumping past the agent chapter — unlock so lockToAgentSolo can't pull us back */
+  agentCardsUnlocked = true;
+  agentSoloParked = false;
+  stopPayRewardFx();
+  payCoinsDone = true;
+  refreshAgentPinY();
+  scrollPageToY(pageYOf(el) - navOffset(), {
+    smooth,
+    resolveEl: el,
+    onDone: () => {
+      /* Hard-land after fly-through in case layout shifted during the agent chapter */
+      window.scrollTo(0, Math.max(0, Math.round(pageYOf(el) - navOffset())));
+      paintAgentIntro(agentProgress());
+    },
+  });
+  if (history.replaceState) history.replaceState(null, "", `#${id}`);
+}
+
 /* Hard-land on the finished agent-only screen (never past into cards) */
 function lockToAgentSolo() {
-  if (!agentScene || agentLocking) return;
+  if (!agentScene || agentLocking || programmaticNav) return;
   const soloMaxY = agentSoloMaxScrollY();
   const y = window.scrollY;
   const wasParked = agentSoloParked;
@@ -1014,38 +1322,43 @@ function goToAgentSolo(smooth = true) {
   agentSoloParked = true;
   agentParkedAt = performance.now();
   const soloMaxY = agentSoloMaxScrollY();
-  window.scrollTo({
-    top: soloMaxY,
-    behavior: smooth ? "smooth" : "auto",
+  scrollPageToY(soloMaxY, {
+    smooth,
+    onDone: () => {
+      agentSoloParked = true;
+      agentCardsUnlocked = false;
+      paintAgentIntro(agentProgress());
+    },
   });
-  const start = performance.now();
-  function settle() {
-    paintAgentIntro(agentProgress());
-    if (
-      Math.abs(window.scrollY - soloMaxY) > 3 &&
-      performance.now() - start < 1400
-    ) {
-      requestAnimationFrame(settle);
-      return;
-    }
-    window.scrollTo({ top: soloMaxY, behavior: "auto" });
-    paintAgentIntro(agentProgress());
-  }
-  requestAnimationFrame(settle);
 }
 
 document.querySelectorAll("[data-goto-agent-solo]").forEach((el) => {
   el.addEventListener("click", (e) => {
     e.preventDefault();
-    goToAgentSolo(true);
-    if (history.replaceState) {
-      history.replaceState(null, "", "#how-it-works");
-    }
+    scrollToNavTarget("#how-it-works", { smooth: true });
+  });
+});
+
+document.querySelectorAll(".nav-brand[href='#top'], .footer-logo[href='#top']").forEach((el) => {
+  el.addEventListener("click", (e) => {
+    e.preventDefault();
+    scrollToNavTarget("#top", { smooth: true });
+  });
+});
+
+document.querySelectorAll(".nav-links a[href^='#']").forEach((el) => {
+  el.addEventListener("click", (e) => {
+    const href = el.getAttribute("href");
+    if (!href || href === "#") return;
+    e.preventDefault();
+    scrollToNavTarget(href, { smooth: true });
   });
 });
 
 if (location.hash === "#how-it-works") {
-  requestAnimationFrame(() => goToAgentSolo(false));
+  requestAnimationFrame(() => scrollToNavTarget("#how-it-works", { smooth: false }));
+} else if (location.hash && location.hash !== "#top") {
+  requestAnimationFrame(() => scrollToNavTarget(location.hash, { smooth: false }));
 }
 
 function agentSoloSettled() {
@@ -1083,6 +1396,56 @@ function agentProgress() {
   const total = agentScene.offsetHeight - window.innerHeight;
   if (total <= 0) return 0;
   return clamp01(-rect.top / total);
+}
+
+const DARK_BEATS = [
+  AGENT_STRIP_START,
+  AGENT_HOWTO_HOLD_END,
+  AGENT_PHONE_END,
+  AGENT_EXPLODE_END,
+  AGENT_RESOLVE_END,
+  AGENT_SCORE_END,
+  AGENT_PAY_END,
+  AGENT_REWARDS_START,
+  1,
+];
+
+function scrollToAgentProgress(targetP) {
+  if (!agentScene) return;
+  refreshAgentPinY();
+  const total = Math.max(agentScene.offsetHeight - window.innerHeight, 1);
+  const y = agentPinScrollY() + total * clamp01(targetP);
+  window.scrollTo({ top: y, behavior: "smooth" });
+}
+
+function goToNextDarkBeat() {
+  if (!agentScene || !agentSticky?.classList.contains("is-dark")) return;
+
+  if (!agentCardsUnlocked) {
+    unlockAgentCards();
+    scrollToAgentProgress(AGENT_STRIP_START + 0.008);
+    return;
+  }
+
+  const p = agentProgress();
+  const next = DARK_BEATS.find((beat) => beat > p + 0.018) ?? 1;
+
+  if (next >= 0.999) {
+    payCoinsPlaying = false;
+    payCoinsDone = true;
+    document.getElementById("loans")?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+    return;
+  }
+
+  if (payCoinsPlaying && !payCoinsDone && next >= AGENT_REWARDS_START) {
+    payCoinsPlaying = false;
+    payCoinsDone = true;
+  }
+
+  scrollToAgentProgress(next);
 }
 
 function paintAgentIntro(p) {
@@ -1456,9 +1819,13 @@ function paintAgentIntro(p) {
       const rayW = desiredViewport / Math.max(scaleX, 0.12);
       agentSticky.style.setProperty("--scan-ray-width", `${rayW.toFixed(1)}px`);
 
-      /* Loan list band on screen1: seat at top of band, scan down into fade */
-      const scanTopY = ph.top + ph.height * 0.36;
-      const scanBotY = ph.top + ph.height * 0.74;
+      /* Loan list band on screen1: seat at top of band, scan down into fade.
+       * On mobile the phone sits higher and fades sooner — keep the scan
+       * inside the opaque screenshot, not the black gap below it. */
+      const mobileScan = window.matchMedia("(max-width: 719px)").matches;
+      /* Mobile phone is cropped/faded sooner — keep the whole scan in the list band */
+      const scanTopY = ph.top + ph.height * (mobileScan ? 0.2 : 0.36);
+      const scanBotY = ph.top + ph.height * (mobileScan ? 0.36 : 0.74);
       const seatPct =
         ((scanTopY - stickyBox.top) / stickyBox.height) * 100;
       agentSticky.style.setProperty(
@@ -1558,9 +1925,10 @@ function paintAgentIntro(p) {
   }
 
   /* Coins once the fan is clearly on — hold scroll until they finish */
-  if (payRewards >= 0.55 && shouldDark && isHowto) {
+  if (payRewards >= 0.55 && shouldDark && isHowto && !programmaticNav) {
     if (!payRewardFxFired) firePayRewardFx();
   } else if (
+    !programmaticNav &&
     !payCoinsPlaying &&
     (payRewards < 0.28 || (!shouldDark && p < AGENT_REWARDS_START))
   ) {
@@ -1568,6 +1936,10 @@ function paintAgentIntro(p) {
       stopPayRewardFx();
       payCoinsDone = false;
     }
+  }
+  /* Keep +N pills locked to card top-corners while the fan settles */
+  if (payRewardFxFired && payRewards >= 0.45) {
+    placePayPointPills();
   }
   clampPayCoinsScroll();
 
@@ -1597,6 +1969,7 @@ function paintAgentIntro(p) {
   ) {
     requestAnimationFrame(() => paintAgentIntro(agentProgress()));
   }
+  updateImpactScrollHint();
 }
 
 function onAgentScroll() {
@@ -1608,7 +1981,8 @@ function onAgentScroll() {
   const soloMaxY = agentSoloMaxScrollY();
   const sceneRun = Math.max(agentScene.offsetHeight - vh, 1);
 
-  if (y < pinY - vh * 0.5) {
+  /* Keep chapter visuals painting during nav flyovers; only skip hard resets/locks */
+  if (y < pinY - vh * 0.5 && !programmaticNav) {
     agentSoloParked = false;
     agentCardsUnlocked = false;
     agentAllLatched = false;
@@ -1636,16 +2010,18 @@ function onAgentScroll() {
    * From first fold: never past the finished agent-only screen.
    * A little further scroll after settle unlocks cards.
    */
-  if (!agentCardsUnlocked && y > soloMaxY + 4 && y < pinY + sceneRun * 0.9) {
-    if (agentSoloSettled()) {
-      unlockAgentCards();
-    } else {
-      lockToAgentSolo();
-    }
-  } else if (y >= pinY - 4 && y <= soloMaxY + 4) {
-    if (!agentSoloParked && !agentCardsUnlocked) {
-      agentSoloParked = true;
-      agentParkedAt = performance.now();
+  if (!programmaticNav) {
+    if (!agentCardsUnlocked && y > soloMaxY + 4 && y < pinY + sceneRun * 0.9) {
+      if (agentSoloSettled()) {
+        unlockAgentCards();
+      } else {
+        lockToAgentSolo();
+      }
+    } else if (y >= pinY - 4 && y <= soloMaxY + 4) {
+      if (!agentSoloParked && !agentCardsUnlocked) {
+        agentSoloParked = true;
+        agentParkedAt = performance.now();
+      }
     }
   }
 
@@ -1653,7 +2029,7 @@ function onAgentScroll() {
 }
 
 function onAgentWheel(e) {
-  if (!agentScene) return;
+  if (!agentScene || programmaticNav) return;
 
   const y = window.scrollY;
   const pinY = agentPinScrollY();
@@ -1713,7 +2089,7 @@ function onAgentTouchStart(e) {
 }
 
 function onAgentTouchMove(e) {
-  if (!agentScene || !e.touches?.[0]) return;
+  if (!agentScene || !e.touches?.[0] || programmaticNav) return;
 
   const y = window.scrollY;
   const pinY = agentPinScrollY();
@@ -1762,6 +2138,34 @@ window.addEventListener("touchstart", onAgentTouchStart, { passive: true });
 window.addEventListener("touchmove", onAgentTouchMove, { passive: false });
 window.addEventListener("resize", refreshAgentPinY, { passive: true });
 refreshAgentPinY();
+
+document.querySelector("[data-story-scroll-next]")?.addEventListener("click", (e) => {
+  e.preventDefault();
+  goToNextDarkBeat();
+});
+
+function updateImpactScrollHint() {
+  const hint = document.querySelector(".impact-scroll-hint");
+  if (!hint) return;
+  const cards = document.querySelector("[data-impact] .impact-metrics");
+  const sticky = document.querySelector(".story-agent-sticky");
+  const agent = document.querySelector("[data-gs-agent]");
+  const vh = window.innerHeight || 1;
+  const cardsRect = cards?.getBoundingClientRect();
+  const pastCards = !!cardsRect && cardsRect.bottom < vh - 48;
+  const stageOn =
+    !!sticky &&
+    (sticky.classList.contains("is-peeking") || sticky.classList.contains("is-dark"));
+  const agentRect = agent?.getBoundingClientRect();
+  const agentOnScreen =
+    stageOn &&
+    !!agentRect &&
+    agentRect.top < vh - 40 &&
+    agentRect.bottom > 20;
+  /* Once the agent has scrolled off the top, never show over later white sections */
+  const scrolledPastAgent = !!agentRect && agentRect.bottom <= 40;
+  hint.classList.toggle("is-on", pastCards && !agentOnScreen && !scrolledPastAgent);
+}
 
 /* ---------- Story scroll storytelling ---------- */
 const SCENE_COUNT = scenes.length;
@@ -2003,3 +2407,322 @@ faqItems.forEach((item) => {
 });
 
 /* ---------- Lender network scroll rotation (handled inline in index.html) ---------- */
+
+/* ---------- Score potential modal ---------- */
+(function initPotentialModal() {
+  const overlay = document.querySelector("[data-potential-overlay]");
+  const dialog = document.querySelector("[data-potential-dialog]");
+  const currentInput = document.querySelector("[data-potential-current]");
+  const errorEl = document.querySelector("[data-potential-error]");
+  const slider = document.querySelector("[data-potential-slider]");
+  const track = document.querySelector("[data-potential-track]");
+  const currentMark = document.querySelector("[data-current-mark]");
+  const targetMark = document.querySelector("[data-target-mark]");
+  const currentLabel = document.querySelector("[data-current-label]");
+  const targetLabel = document.querySelector("[data-target-label]");
+  const unlockHeading = document.querySelector("[data-unlock-heading]");
+  const loanEl = document.querySelector('[data-benefit="loan"]');
+  const ccEl = document.querySelector('[data-benefit="cc"]');
+  const emiEl = document.querySelector('[data-benefit="emi"]');
+  const timeEl = document.querySelector('[data-benefit="time"]');
+  const timeSubEl = document.querySelector('[data-benefit-sub="time"]');
+  const askStep = document.querySelector('[data-potential-step="ask"]');
+  const resultsStep = document.querySelector('[data-potential-step="results"]');
+  if (!overlay || !currentInput || !slider || !track) return;
+
+  const SCORE_MIN = 300;
+  const SCORE_MAX = 900;
+  const STEP = 5;
+  let currentScore = 650;
+  let targetScore = 750;
+
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
+
+  function roundTo(n, step) {
+    return Math.round(n / step) * step;
+  }
+
+  function benefitsAt(score) {
+    const t = clamp((score - SCORE_MIN) / (SCORE_MAX - SCORE_MIN), 0, 1);
+    const ease = t * t;
+    return {
+      loan: roundTo(lerp(50000, 4000000, ease), 10000),
+      cc: roundTo(lerp(15000, 350000, ease), 1000),
+      emi: roundTo(lerp(0, 8000, ease), 100),
+    };
+  }
+
+  function formatInr(n) {
+    if (n >= 10000000) {
+      const cr = n / 10000000;
+      return `₹${cr >= 10 ? Math.round(cr) : cr.toFixed(1).replace(/\.0$/, "")}Cr`;
+    }
+    if (n >= 100000) {
+      const l = n / 100000;
+      const s = l >= 10 ? String(Math.round(l)) : l.toFixed(1).replace(/\.0$/, "");
+      return `₹${s}L`;
+    }
+    return `₹${Math.round(n).toLocaleString("en-IN")}`;
+  }
+
+  function monthsToTarget(from, to) {
+    const gap = Math.max(0, to - from);
+    if (gap === 0) return 0;
+    return clamp(Math.round(gap / 40), 2, 18);
+  }
+
+  function monthCopy(m) {
+    return `${m}–${m + 1} months`;
+  }
+
+  function scoreToPct(score) {
+    return ((score - SCORE_MIN) / (SCORE_MAX - SCORE_MIN)) * 100;
+  }
+
+  function parseScore(value) {
+    const n = Number.parseInt(String(value).replace(/\D/g, ""), 10);
+    if (!Number.isFinite(n)) return null;
+    return n;
+  }
+
+  function validScore(n) {
+    return n != null && n >= SCORE_MIN && n <= SCORE_MAX;
+  }
+
+  function setChipState(score) {
+    document.querySelectorAll("[data-score-chip]").forEach((chip) => {
+      chip.classList.toggle("is-on", Number(chip.dataset.scoreChip) === score);
+    });
+  }
+
+  function positionMarks(current, target) {
+    if (currentMark) currentMark.style.left = `${scoreToPct(current)}%`;
+    if (targetMark) targetMark.style.left = `${scoreToPct(target)}%`;
+    if (currentLabel) currentLabel.textContent = String(current);
+    if (targetLabel) targetLabel.textContent = String(target);
+    slider.setAttribute("aria-valuenow", String(target));
+    slider.setAttribute("aria-valuemin", String(current));
+    slider.setAttribute("aria-valuetext", `${target} target score`);
+  }
+
+  function renderBenefits(current, target) {
+    const atTarget = benefitsAt(target);
+    const headingScore = target;
+    if (unlockHeading) {
+      unlockHeading.textContent = `What you unlock at ${headingScore}+`;
+    }
+    if (loanEl) {
+      loanEl.innerHTML = `Loan eligibility upto <strong>${formatInr(atTarget.loan)}</strong>`;
+    }
+    if (ccEl) {
+      ccEl.innerHTML = `Credit card limit upto <strong>${formatInr(atTarget.cc)}</strong>`;
+    }
+    if (emiEl) {
+      emiEl.innerHTML = `EMI savings upto <strong>${formatInr(atTarget.emi)} / month</strong>`;
+    }
+    if (timeEl) {
+      if (target <= current) {
+        timeEl.innerHTML = `<strong>${current}</strong> is where you are today`;
+        if (timeSubEl) timeSubEl.textContent = "Drag right to see what a higher score unlocks.";
+      } else {
+        const months = monthsToTarget(current, target);
+        timeEl.innerHTML = `High chance to reach ${target}+ in <strong>${monthCopy(months)}</strong>`;
+        if (timeSubEl) {
+          timeSubEl.textContent = "Based on typical credit history and active management.";
+        }
+      }
+    }
+    positionMarks(current, target);
+  }
+
+  function showStep(name, instant) {
+    [askStep, resultsStep].forEach((step) => {
+      const on = step.dataset.potentialStep === name;
+      if (instant) step.style.transition = "none";
+      step.classList.toggle("is-active", on);
+      step.toggleAttribute("inert", !on);
+      step.setAttribute("aria-hidden", String(!on));
+    });
+    if (instant) {
+      requestAnimationFrame(() => {
+        [askStep, resultsStep].forEach((step) => {
+          step.style.transition = "";
+        });
+      });
+    }
+  }
+
+  let closeTimer = 0;
+
+  function prefersReducedMotion() {
+    return window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+  }
+
+  function openModal() {
+    window.clearTimeout(closeTimer);
+    overlay.hidden = false;
+    overlay.setAttribute("aria-hidden", "false");
+    document.body.classList.add("potential-open");
+    showStep("ask", true);
+    errorEl.hidden = true;
+    setChipState(parseScore(currentInput.value));
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => overlay.classList.add("is-open"));
+    });
+  }
+
+  function closeModal() {
+    overlay.classList.remove("is-open");
+    overlay.setAttribute("aria-hidden", "true");
+    const finish = () => {
+      overlay.hidden = true;
+      document.body.classList.remove("potential-open");
+    };
+    if (prefersReducedMotion()) {
+      finish();
+      return;
+    }
+    window.clearTimeout(closeTimer);
+    closeTimer = window.setTimeout(finish, 480);
+  }
+
+  function showResults() {
+    const parsed = parseScore(currentInput.value);
+    if (!validScore(parsed)) {
+      errorEl.hidden = false;
+      currentInput.focus();
+      return;
+    }
+    errorEl.hidden = true;
+    currentScore = parsed;
+    targetScore = currentScore >= 750 ? clamp(currentScore + 50, SCORE_MIN, SCORE_MAX) : 750;
+    renderBenefits(currentScore, targetScore);
+    showStep("results");
+  }
+
+  function setTarget(score) {
+    const next = clamp(roundTo(score, STEP), currentScore, SCORE_MAX);
+    if (next === targetScore) return;
+    targetScore = next;
+    renderBenefits(currentScore, targetScore);
+  }
+
+  function scoreFromPointer(clientX) {
+    const rect = track.getBoundingClientRect();
+    if (!rect.width) return targetScore;
+    const t = clamp((clientX - rect.left) / rect.width, 0, 1);
+    return SCORE_MIN + t * (SCORE_MAX - SCORE_MIN);
+  }
+
+  document.querySelectorAll("[data-potential-open]").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      openModal();
+    });
+  });
+
+  overlay.querySelectorAll("[data-potential-close]").forEach((el) => {
+    el.addEventListener("click", (e) => {
+      const href = el.getAttribute("href") || "";
+      if (el.tagName === "A" && href.startsWith("#") && href.length > 1) {
+        e.preventDefault();
+        closeModal();
+        const target = document.querySelector(href);
+        requestAnimationFrame(() => {
+          target?.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+        return;
+      }
+      e.preventDefault();
+      closeModal();
+    });
+  });
+
+  document.querySelector("[data-potential-show]")?.addEventListener("click", showResults);
+  document.querySelector("[data-potential-back]")?.addEventListener("click", () => showStep("ask"));
+
+  currentInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      showResults();
+    }
+  });
+
+  currentInput.addEventListener("input", () => {
+    errorEl.hidden = true;
+    setChipState(parseScore(currentInput.value));
+  });
+
+  document.querySelectorAll("[data-score-chip]").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      currentInput.value = chip.dataset.scoreChip;
+      setChipState(Number(chip.dataset.scoreChip));
+      errorEl.hidden = true;
+      currentInput.focus();
+    });
+  });
+
+  document.querySelectorAll("[data-score-step]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const step = Number(btn.dataset.scoreStep);
+      const base = parseScore(currentInput.value) ?? 650;
+      const next = clamp(base + step, SCORE_MIN, SCORE_MAX);
+      currentInput.value = String(next);
+      setChipState(next);
+      errorEl.hidden = true;
+    });
+  });
+
+  slider.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    slider.classList.add("is-dragging");
+    slider.setPointerCapture?.(e.pointerId);
+    slider.focus({ preventScroll: true });
+    setTarget(scoreFromPointer(e.clientX));
+  });
+
+  slider.addEventListener("pointermove", (e) => {
+    if (!slider.classList.contains("is-dragging")) return;
+    e.preventDefault();
+    setTarget(scoreFromPointer(e.clientX));
+  });
+
+  const endDrag = (e) => {
+    if (!slider.classList.contains("is-dragging")) return;
+    slider.classList.remove("is-dragging");
+    slider.releasePointerCapture?.(e.pointerId);
+  };
+  slider.addEventListener("pointerup", endDrag);
+  slider.addEventListener("pointercancel", endDrag);
+
+  slider.addEventListener("keydown", (e) => {
+    const jumps = {
+      ArrowLeft: -STEP,
+      ArrowDown: -STEP,
+      ArrowRight: STEP,
+      ArrowUp: STEP,
+      PageDown: -STEP * 10,
+      PageUp: STEP * 10,
+    };
+    if (e.key in jumps) {
+      e.preventDefault();
+      setTarget(targetScore + jumps[e.key]);
+      return;
+    }
+    if (e.key === "Home") {
+      e.preventDefault();
+      setTarget(currentScore);
+    } else if (e.key === "End") {
+      e.preventDefault();
+      setTarget(SCORE_MAX);
+    }
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !overlay.hidden) closeModal();
+  });
+
+  dialog?.addEventListener("click", (e) => e.stopPropagation());
+})();
+
