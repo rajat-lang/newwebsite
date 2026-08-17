@@ -802,6 +802,8 @@ let payCoinsHoldTimer = 0;
 let payShimmerTimer = 0;
 let payCoinsScrollYAtStart = 0;
 let payCoinsExitQueued = false;
+/* Once the finale has run, don't replay / bounce to loans until chapter resets */
+let payFinaleConsumed = false;
 const PAY_SHIMMER_MS = 1050;
 const PAY_PILL_LEAD_MS = 0;
 const PAY_REWARD_COIN_SRCS = [
@@ -1031,6 +1033,7 @@ function finishPayRewardCoins() {
   if (!payCoinsPlaying && payCoinsDone) return;
   payCoinsPlaying = false;
   payCoinsDone = true;
+  payFinaleConsumed = true;
   payCoinsHoldTimer = 0;
   /* Coins have finished their flight — clear them so they fully disappear */
   agentPayRewardFly?.querySelectorAll(".pay-fly-coin").forEach((el) => el.remove());
@@ -1038,11 +1041,17 @@ function finishPayRewardCoins() {
   agentPayPoints.forEach((_, i) => setPayPoints(i, PAY_POINTS_TOTALS[i] ?? 0));
   placePayPointPills();
 
-  /* After the finale, continue into the light section */
-  requestAnimationFrame(() => {
-    advanceToLightAfterRewards();
-    payCoinsExitQueued = false;
-  });
+  /*
+   * Advance to light only when the user was leaving downward through the finale.
+   * Never yank back to loans when they scroll up into this beat again.
+   */
+  const hold = payCoinsHoldScrollY();
+  const leavingDown =
+    payCoinsExitQueued || window.scrollY >= hold - 12;
+  payCoinsExitQueued = false;
+  if (leavingDown) {
+    requestAnimationFrame(() => advanceToLightAfterRewards());
+  }
 }
 
 function revealPayRewardsStep() {
@@ -1217,6 +1226,7 @@ function firePayRewardFx() {
     payCoinsPlaying = false;
     payCoinsDone = true;
     payCoinsReleased = true;
+    payFinaleConsumed = true;
     agentPayCardHost?.classList.add("is-shimmer", "is-emit");
     agentPayRewardFx.classList.add("is-on");
     agentPayRewardFx.setAttribute("aria-hidden", "false");
@@ -1224,7 +1234,10 @@ function firePayRewardFx() {
       setPayPoints(i, PAY_POINTS_TOTALS[i] ?? 0)
     );
     revealPayRewardsStep();
-    requestAnimationFrame(() => advanceToLightAfterRewards());
+    const hold = payCoinsHoldScrollY();
+    if (window.scrollY >= hold - 12) {
+      requestAnimationFrame(() => advanceToLightAfterRewards());
+    }
     return;
   }
 
@@ -1705,16 +1718,19 @@ function paintAgentIntro(p) {
   /*
    * White: agent rises bottom → centre (never past it).
    * At centre (pin) → dark dissolves on; grow starts from that seat.
-   * End of chapter → unlatch after the coin finale finishes, then light.
+   * After the coin finale has run once, free-scroll the exit — including
+   * upward — without replaying or bouncing back to the light section.
    */
   const pastLastBeat = p >= AGENT_REWARDS_END;
-  const coinsFinaleActive = payCoinsPlaying || (payRewardFxFired && !payCoinsDone);
-  const mobileExit =
-    isMobileViewport() && pastLastBeat && payCoinsDone && !payCoinsPlaying;
+  const coinsFinaleActive =
+    !payFinaleConsumed &&
+    (payCoinsPlaying || (payRewardFxFired && !payCoinsDone));
+  const finaleExit = payFinaleConsumed && pastLastBeat;
+  const mobileExit = isMobileViewport() && finaleExit;
   const stillCovering = rect.bottom > vh * 0.5;
   const pinned = rect.top <= 1;
   const chapterDone =
-    (!coinsFinaleActive && rect.bottom <= vh * 1.02) || mobileExit;
+    (!coinsFinaleActive && rect.bottom <= vh * 1.02) || finaleExit;
   if (pinned && stillCovering && !chapterDone) {
     agentDarkLatched = true;
   } else if (
@@ -2184,12 +2200,19 @@ function paintAgentIntro(p) {
     }
   }
 
-  /* Coins the instant the fan seats — park until the burst finishes, then light */
-  if (payRewards >= 0.92 && shouldDark && isHowto && !programmaticNav) {
+  /* Coins once when the fan seats — never replay on scroll-up through the finale */
+  if (
+    payRewards >= 0.92 &&
+    shouldDark &&
+    isHowto &&
+    !programmaticNav &&
+    !payFinaleConsumed
+  ) {
     if (!payRewardFxFired) firePayRewardFx();
   } else if (
     !programmaticNav &&
     !payCoinsPlaying &&
+    !payFinaleConsumed &&
     (payRewards < 0.55 || (!shouldDark && p < AGENT_REWARDS_START))
   ) {
     if (payRewardFxFired || payCoinsDone) {
@@ -2260,6 +2283,7 @@ function onAgentScroll() {
     stopScoreConfetti();
     stopPayRewardFx();
     payCoinsDone = false;
+    payFinaleConsumed = false;
     lastScoreStep = -1;
     applyScoreStep(0, false);
     agentParkedAt = 0;
